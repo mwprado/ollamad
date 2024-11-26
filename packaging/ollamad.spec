@@ -5,7 +5,7 @@ Summary:        Ollama - AI assistant daemon
 
 License:        MIT
 URL:            https://github.com/ollama/ollama
-Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{Version}.zip
+Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.zip
 Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
 
 BuildArch:      %{_arch}
