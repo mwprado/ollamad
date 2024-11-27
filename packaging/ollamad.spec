@@ -11,6 +11,7 @@ Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
 BuildArch:      %{_arch}
 Requires:       systemd
 BuildRequires:  golang
+BuildRequires:  git
 
 %description
 Ollama is a local AI assistant that runs as a daemon. This package installs the Ollama binaries and sets up a Systemd service.
