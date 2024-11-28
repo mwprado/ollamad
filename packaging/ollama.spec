@@ -10,6 +10,7 @@ Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
 
 BuildArch:      %{_arch}
 Requires:       systemd
+BuildRequires:  systemd
 BuildRequires:  golang
 BuildRequires:  git
 BuildRequires:  gcc-c++
@@ -23,8 +24,7 @@ Ollama is a local AI assistant that runs as a daemon. This package installs the 
 
 %build
 # Compile the source code for Ollama
-cd %{_builddir}/ollama-%{version}
-make
+make -C %{_builddir}/ollama-%{version}
 go build
 
 %install
@@ -32,7 +32,7 @@ go build
 install -Dm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}/usr/bin/ollama
 
 # Install Systemd service file
-install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
+install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}/%{_unitdir}/ollamad.service
 
 %files
 %license LICENSE
