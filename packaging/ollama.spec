@@ -26,13 +26,14 @@ Ollama is a local AI assistant that runs as a daemon. This package installs the 
 cd %{_builddir}/ollama-%{version}
 make
 go build
+tree
 
 %install
 # Install Ollama binary
 install -Dm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}/usr/bin/ollama
 
 # Install Systemd service file
-install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
+install -Dm0644 %{_builddir}/ollama-%{version}/ollama/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
 
 %files
 %license LICENSE
