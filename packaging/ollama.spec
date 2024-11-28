@@ -1,4 +1,4 @@
-Name:           ollamad
+Name:           ollama
 Version:        0.4.5
 Release:        %autorelease
 Summary:        Ollama - AI assistant daemon
