@@ -26,7 +26,6 @@ Ollama is a local AI assistant that runs as a daemon. This package installs the 
 cd %{_builddir}/ollama-%{version}
 make
 go build
-tree
 
 %install
 # Install Ollama binary
