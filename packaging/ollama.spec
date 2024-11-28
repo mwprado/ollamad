@@ -32,13 +32,13 @@ go build
 install -Dm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}/usr/bin/ollama
 
 # Install Systemd service file
-install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
+install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollama.service
 
 %files
 %license LICENSE
 %doc README.md
 /usr/bin/ollama
-%{_unitdir}/ollamad.service
+%{_unitdir}/ollama.service
 
 %post
 # Reload Systemd daemon to recognize the service
