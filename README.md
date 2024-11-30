@@ -27,3 +27,11 @@ Este projeto tem como objetivo criar um pacote **RPM** para o **Ollama**, um ass
 
 ---
 
+## TODO List
+- create rocm/cuda packages
+- separate libs
+- improve spec file
+  - creaing a system user "ollama"
+  - change ollama's home to var
+  - transte to english README.md
+  
