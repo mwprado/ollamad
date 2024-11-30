@@ -14,14 +14,12 @@ BuildRequires:  systemd
 BuildRequires:  golang
 BuildRequires:  git
 BuildRequires:  gcc-c++
-BuildRequires:  g++
 
 %description
 Ollama is a local AI assistant that runs as a daemon. This package installs the Ollama binaries and sets up a Systemd service.
 
 %prep
 %autosetup
-#%setup -q -n ollama-%{version} -a 1
 
 %build
 # Compile the source code for Ollama
