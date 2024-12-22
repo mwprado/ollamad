@@ -31,13 +31,13 @@ go build
 install -Dm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}/usr/bin/ollama
 
 # Install Systemd service file
-install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
+install -Dm0644 %{_builddir}/ollama-%{version}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
 
 # Install Config  Systemd Service file  
-install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf %{buildroot}/etc/ollamad.conf
+install -Dm0644 %{_builddir}/ollama-%{version}/ollama-%{version}/ollamad-main/ollamad.conf %{buildroot}/etc/ollamad.conf
 
 # creating models folder
-mkdir -p %{buildroot}/var/ollamad
+mkdir -p %{buildroot}/var/ollama
 
 %files
 %license LICENSE
@@ -45,7 +45,7 @@ mkdir -p %{buildroot}/var/ollamad
 /usr/bin/ollama
 %{_unitdir}/ollamad.service
 /etc/ollamad.conf
-/var/ollamad
+/var/ollama
 
 %post
 # Reload Systemd daemon to recognize the service
