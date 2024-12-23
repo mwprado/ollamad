@@ -19,8 +19,8 @@ BuildRequires:  gcc-c++
 Ollama is a local AI assistant that runs as a daemon. This package installs the Ollama binaries and sets up a Systemd service.
 
 %prep
-%setup -n ollama 
-%setup -T -a 1 -n ollamad 
+%setup
+%setup -T -a 1 -n ollamad-main
 
 
 %build
@@ -30,13 +30,13 @@ go build
 
 %install
 # Install Ollama binary
-install -Dm0755 %{_builddir}/ollama/ollama %{buildroot}/usr/bin/ollama
+install -Dm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}/usr/bin/ollama
 
 # Install Systemd service file
-install -Dm0644 %{_builddir}/ollama/ollamad/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
+install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
 
 # Install Config  Systemd Service file  
-install -Dm0644 %{_builddir}/ollama/ollamad/ollamad.conf %{buildroot}/etc/ollamad.conf
+install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf %{buildroot}/etc/ollamad.conf
 
 # creating models folder
 mkdir -p %{buildroot}/var/ollama
