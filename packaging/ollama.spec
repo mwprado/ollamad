@@ -20,7 +20,7 @@ Ollama is a local AI assistant that runs as a daemon. This package installs the 
 
 %prep
 %setup
-%setup -T -a 1 -n ollamad-main
+%setup -T -D -a 1 -n ollamad-main
 
 
 %build
