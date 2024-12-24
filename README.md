@@ -32,7 +32,7 @@ This project aims to create an **RPM** package for **Ollama**, a local AI assist
 - Improve spec file.
   - Create a system user for the Ollama daemon.
   - Change Ollama's home to the `/var` folder.
-  ~~- Translate README.md to English.~~
+  - ~~Translate README.md to English.~~
 
 --- 
 
