@@ -39,15 +39,15 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{bu
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf %{buildroot}/etc/ollamad.conf
 
 # creating models folder
-mkdir -p %{buildroot}/var/ollama
+mkdir -p %{buildroot}/var/lib/ollama
 
 %files
 %license LICENSE
 %doc README.md
 /usr/bin/ollama
 %{_unitdir}/ollamad.service
-/etc/ollamad.conf
-/var/ollama
+/etc/ollama.conf
+/var/lib/ollama
 
 %post
 # Reload Systemd daemon to recognize the service
