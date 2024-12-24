@@ -1,37 +1,40 @@
+# Project: Packaging Ollama in RPM
 
-# Projeto: Empacotamento do Ollama em RPM
-
-Este projeto tem como objetivo criar um pacote **RPM** para o **Ollama**, um assistente de IA local, configurando-o para ser executado como um serviço gerenciado pelo **Systemd**. O pacote RPM resultante facilitará a instalação e o gerenciamento do Ollama em sistemas baseados em Red Hat/CentOS/Fedora.
-
----
-
-## Funcionalidades
-
-- **Empacotamento em RPM**:
-  - Facilita a instalação, remoção e atualização do Ollama.
-  - Inclui o binário pré-compilado do Ollama.
-- **Serviço Systemd**:
-  - Configurado para iniciar o Ollama automaticamente no boot.
-  - Gerenciamento simplificado do daemon com comandos como `systemctl start/stop/status/restart`.
+This project aims to create an **RPM** package for **Ollama**, a local AI assistant, setting it up to run as a service managed by **Systemd**. The resulting RPM package will simplify the installation and management of Ollama on Red Hat/CentOS/Fedora-based systems.
 
 ---
 
-## Estrutura do Projeto
+## Features
 
-- `ollamad.spec`: Arquivo de especificação do RPM, definindo como o pacote é construído e instalado.
-- `ollama.service`: Arquivo de configuração do Systemd para gerenciar o Ollama como um daemon.
-- Binários e fontes:
-  - `ollama-linux-amd64.tgz`: Binário do Ollama para sistemas x86_64.
-  - `ollama-linux-arm64.tgz`: Binário do Ollama para sistemas ARM64.
-  - Código-fonte adicional: Obtido do repositório do projeto Ollamad.
+- **RPM Packaging**:
+  - Simplifies the installation, removal, and update of Ollama.
+  - Includes the pre-compiled Ollama binary.
+- **Systemd Service**:
+  - Configured to automatically start Ollama on boot.
+  - Simplified daemon management with commands like `systemctl start/stop/status/restart`.
+
+---
+
+## Project Structure
+
+- `ollamad.spec`: RPM specification file, defining how the package is built and installed.
+- `ollama.service`: Systemd configuration file to manage Ollama as a daemon.
+- Binaries and sources:
+  - `ollama-linux-amd64.tgz`: Ollama binary for x86_64 systems.
+  - `ollama-linux-arm64.tgz`: Ollama binary for ARM64 systems.
+  - Additional source code: Obtained from the Ollamad project repository.
 
 ---
 
 ## TODO List
-- create rocm/cuda packages.
-- separate depency library downloaded on build.
-- improve spec file.
-  - creating a system user for ollama daemon.
-  - change ollama's home to var folder.
-  - transte README.md to english.
+- Create rocm/cuda packages.
+- Separate dependency library downloaded during build.
+- Improve spec file.
+  - Create a system user for the Ollama daemon.
+  - Change Ollama's home to the `/var` folder.
+  ~~- Translate README.md to English.~~
+
+--- 
+
+Let me know if you need further help!
   
