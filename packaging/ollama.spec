@@ -20,12 +20,12 @@ Ollama is a local AI assistant that runs as a daemon. This package installs the 
 
 %prep
 %setup
-%setup -T -D -a 1 -n ollamad-main
+%setup -T -D -a 1
 
 
 %build
 # Compile the source code for Ollama
-make -C %{_builddir}/ollama
+make -C %{_builddir}/ollama-%{version}
 go build
 
 %install
@@ -35,7 +35,7 @@ install -Dm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}/usr/bin/ollam
 # Install Systemd service file
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
 
-# Install Config  Systemd Service file  
+# Install Config  Systemd Service file
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf %{buildroot}/etc/ollamad.conf
 
 # creating models folder
