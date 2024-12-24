@@ -46,7 +46,7 @@ mkdir -p %{buildroot}%{_datadir}/ollama/models
 %doc README.md
 %{_sbindir}/ollama
 %{_unitdir}/ollamad.service
-%config(noreplace) %{_sysconfdir}/ollama.conf
+%config(noreplace) %{_sysconfdir}/ollamad.conf
 %{_datadir}/ollama/models
 
 %post
