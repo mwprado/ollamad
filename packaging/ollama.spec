@@ -36,7 +36,7 @@ install -Dm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}%{_sbindir}/ol
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
 
 # Install Config  Systemd Service file
-install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf %{buildroot}%{_sysconfdir}/ollamad.conf
+install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{buildroot}%{_sysconfdir}/ollamad.conf
 
 # creating models folder
 mkdir -p %{buildroot}%{_datadir}/ollama/models
