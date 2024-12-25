@@ -1,7 +1,7 @@
 Name:           ollama
 Version:        0.4.6
 Release:        %autorelease
-Summary:        Ollama - AI assistant daemon
+Summary:        AI assistant daemon
 
 License:        MIT
 URL:            https://github.com/ollama/ollama
@@ -16,7 +16,7 @@ BuildRequires:  git
 BuildRequires:  gcc-c++
 
 %description
-Ollama is a local AI assistant that runs as a daemon. This package installs the Ollama binaries and sets up a Systemd service.
+Ollama is a local AI assistant that runs as a daemon.
 
 %prep
 %setup
