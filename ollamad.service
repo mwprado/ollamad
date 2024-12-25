@@ -8,7 +8,7 @@ ExecStart=/usr/bin/ollama serve
 #Group=ollama
 Restart=always
 RestartSec=3
-EnvironmentFile=/etc/ollamad.conf
+EnvironmentFile=/etc/ollama/ollamad.conf
 
 [Install]
 WantedBy=default.target
