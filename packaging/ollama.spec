@@ -39,7 +39,7 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{bu
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{buildroot}%{_sysconfdir}/ollama/ollamad.conf
 
 # creating models folder
-mkdir -p %{buildroot}%{%{_sharedstatedir}}/ollama/models
+mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 
 %files
 %defattr(-,root,root)
