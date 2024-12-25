@@ -50,7 +50,7 @@ mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 %dir %{_sharedstatedir}/ollama/models
 %{_bindir}/ollama
 %{_unitdir}/ollamad.service
-%config(noreplace) %{_sysconfdir}/ollamad.conf
+%config(noreplace) %{_sysconfdir}/ollama/ollamad.conf
 
 
 %post
