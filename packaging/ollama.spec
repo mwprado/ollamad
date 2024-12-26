@@ -10,12 +10,13 @@ Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
 
 BuildArch:      %{_arch}
 	
-Requires(pre): /usr/sbin/useradd
+Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 Requires:       systemd
 BuildRequires:  systemd
 BuildRequires:  golang
 BuildRequires:  git
 BuildRequires:  gcc-c++
+
 
 %description
 Ollama is a local AI assistant that runs as a daemon.
@@ -39,12 +40,12 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{bu
 # Install Config  Systemd Service file
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{buildroot}%{_sysconfdir}/ollama/ollamad.conf
 
-# creating models folder
+# creating models foldergetent group rtkit >/dev/null 2>&1
 mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 
 %pre
 # Add the "ollama" group and user
-/usr/sbin/useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
+%{_bindir}/getent group rtkit >/dev/null 2>&1 || %{_bindir}/useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
 
 %files
 %defattr(-,root,root)
