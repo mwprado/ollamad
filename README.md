@@ -31,6 +31,7 @@ This project aims to create an **RPM** package for **Ollama**, a local AI assist
 - Separate dependency library downloaded during build.
 - Improve spec file.
   - Comply with Fedora's package guidelines.   
+  - ~~Create service's .conf file.~~
   - ~~Create a system user for the Ollama daemon.~~
   - ~~Change Ollama's home to the `/var` folder.~~
   - ~~Translate README.md to English.~~
