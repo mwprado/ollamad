@@ -45,7 +45,7 @@ mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 
 %pre
 # Add the "ollama" group and user
-%{_bindir}/getent group rtkit >/dev/null 2>&1 || %{_bindir}/useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
+%{_bindir}/getent group ollama >/dev/null 2>&1 || %{_bindir}/useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
 
 %files
 %defattr(-,root,root)
