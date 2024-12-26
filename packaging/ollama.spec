@@ -11,7 +11,6 @@ Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
 BuildArch:      %{_arch}
 	
 Requires(pre): /usr/sbin/useradd
-Requires(pre): /usr/sbin/groupadd
 Requires:       systemd
 BuildRequires:  systemd
 BuildRequires:  golang
@@ -45,8 +44,9 @@ mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 
 %pre
 # Add the "ollama" group and user
-/usr/sbin/adduser --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
+/usr/sbin/useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
 
+%files
 %defattr(-,root,root)
 %license LICENSE
 %doc README.md
