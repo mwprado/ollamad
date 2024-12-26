@@ -1,2 +1,0 @@
-#Type Name   ID  GECOS                         Home directory  Shell
-u     ollama -   "User for run Ollama service" /var/lib/ollama /sbin/nologin
