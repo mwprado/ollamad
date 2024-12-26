@@ -9,6 +9,9 @@ Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.z
 Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
 
 BuildArch:      %{_arch}
+	
+Requires(pre): /usr/sbin/useradd
+Requires(pre): /usr/sbin/groupadd
 Requires:       systemd
 BuildRequires:  systemd
 BuildRequires:  golang
@@ -21,7 +24,6 @@ Ollama is a local AI assistant that runs as a daemon.
 %prep
 %setup
 %setup -T -D -a 1
-
 
 %build
 # Compile the source code for Ollama
@@ -41,16 +43,19 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{bu
 # creating models folder
 mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 
-%files
+%pre
+# Add the "ollama" group and user
+/usr/sbin/adduser --system -s /sbin/nologin --group  -d %{_sharedstatedir}/ollama ollama
+
 %defattr(-,root,root)
 %license LICENSE
 %doc README.md
-%dir %{_sysconfdir}/ollama
-%dir %{_sharedstatedir}/ollama
-%dir %{_sharedstatedir}/ollama/models
 %{_bindir}/ollama
 %{_unitdir}/ollamad.service
 %config(noreplace) %{_sysconfdir}/ollama/ollamad.conf
+%dir %{_sysconfdir}/ollama
+%attr(0700,ollama,ollama) %dir %{_sharedstatedir}/ollama
+%attr(0700,ollama,ollama)%dir %{_sharedstatedir}/ollama/models
 
 
 %post
