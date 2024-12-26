@@ -45,7 +45,7 @@ mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 
 %pre
 # Add the "ollama" group and user
-/usr/sbin/adduser --system -s /sbin/nologin --group  -d %{_sharedstatedir}/ollama ollama
+/usr/sbin/adduser --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
 
 %defattr(-,root,root)
 %license LICENSE
