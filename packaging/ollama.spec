@@ -44,8 +44,8 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{bu
 mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 
 %pre
-# Add the "ollama" group and user
-%{_bindir}/getent group ollama >/dev/null 2>&1 || %{_bindir}/useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
+# Add the "ollama" user
+%{_bindir}/getent passwd ollama >/dev/null 2>&1 || %{_bindir}/useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
 
 %files
 %defattr(-,root,root)
