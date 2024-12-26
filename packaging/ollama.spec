@@ -55,7 +55,7 @@ mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 %config(noreplace) %{_sysconfdir}/ollama/ollamad.conf
 %dir %{_sysconfdir}/ollama
 %attr(0700,ollama,ollama) %dir %{_sharedstatedir}/ollama
-%attr(0700,ollama,ollama)%dir %{_sharedstatedir}/ollama/models
+%attr(0700,ollama,ollama) %dir %{_sharedstatedir}/ollama/models
 
 
 %post
