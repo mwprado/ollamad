@@ -6,7 +6,6 @@ After=network-online.target
 RuntimeDirectory=ollama
 Restart=always
 RestartSec=3
-Environment=HOME=/var/lib/ollama
 EnvironmentFile=/etc/ollama/ollamad.conf
 ExecStart=/usr/bin/ollama serve
 
