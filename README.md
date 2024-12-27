@@ -15,6 +15,10 @@ This project aims to create an **RPM** package for **Ollama**, a local AI assist
 
 ---
 
+## Installing
+Go to 
+https://copr.fedorainfracloud.org/coprs/mwprado/ollama/builds/
+
 ## Project Structure
 
 - `ollamad.spec`: RPM specification file, defining how the package is built and installed.
@@ -31,7 +35,7 @@ This project aims to create an **RPM** package for **Ollama**, a local AI assist
 - Separate dependency library downloaded during build.
 - Improve spec file.
   - Comply with Fedora's package guidelines.
-  - Use Systemd dynamic user creation.
+  - ~~Use Systemd dynamic user creation.~~
   - ~~Create service's .conf file.~~
   - ~~Create a system user for the Ollama daemon.~~
   - ~~Change Ollama's home to the `/var` folder.~~
