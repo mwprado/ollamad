@@ -41,11 +41,11 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{bu
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{buildroot}%{_sysconfdir}/ollama/ollamad.conf
 
 # creating models foldergetent group rtkit >/dev/null 2>&1
-mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
+#mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 
-%pre
+#%pre
 # Add the "ollama" user
-%useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
+#%useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
            
 %files
 %defattr(-,root,root)
@@ -55,8 +55,8 @@ mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 %{_unitdir}/ollamad.service
 %config(noreplace) %{_sysconfdir}/ollama/ollamad.conf
 %dir %{_sysconfdir}/ollama
-%attr(0700,ollama,ollama) %dir %{_sharedstatedir}/ollama
-%attr(0700,ollama,ollama) %dir %{_sharedstatedir}/ollama/models
+#%attr(0700,ollama,ollama) %dir %{_sharedstatedir}/ollama
+#%attr(0700,ollama,ollama) %dir %{_sharedstatedir}/ollama/models
 
 
 %post
