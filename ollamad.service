@@ -4,6 +4,7 @@ After=network-online.target
 
 [Service]
 DynamicUser=yes
+User=ollama
 RuntimeDirectory=ollama
 Restart=always
 RestartSec=3
