@@ -2,6 +2,8 @@
 
 This project aims to create an **RPM** package for **Ollama**, a local AI assistant, setting it up to run as a service managed by **Systemd**. The resulting RPM package will simplify the installation and management of Ollama on Red Hat/CentOS/Fedora-based systems.
 
+Ollama official repo: https://github.com/ollama/ollama
+
 ---
 
 ## Features
