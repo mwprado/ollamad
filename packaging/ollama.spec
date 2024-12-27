@@ -45,7 +45,7 @@ mkdir -p %{buildroot}%{_sharedstatedir}/ollama/models
 
 %pre
 # Add the "ollama" user
-%{_bindir}/getent passwd ollama > /dev/null || %{_bindir}/useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
+%useradd --system -s /sbin/nologin -d %{_sharedstatedir}/ollama ollama
            
 %files
 %defattr(-,root,root)
