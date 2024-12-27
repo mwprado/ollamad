@@ -4,8 +4,7 @@ After=network-online.target
 
 [Service]
 DynamicUser=yes
-#User=ollama
-#Group=ollama
+RuntimeDirectory=ollama
 Restart=always
 RestartSec=3
 EnvironmentFile=/etc/ollama/ollamad.conf
