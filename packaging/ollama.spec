@@ -30,9 +30,9 @@ Ollama is a local AI assistant that runs as a daemon.
 %build
 # Compile the source code for Ollama
 #make -C %{_builddir}/ollama-%{version}
-#go build
 cmake -B %{_builddir}/ollama-%{version}
 cmake --build %{_builddir}/ollama-%{version}
+go build
 
 %install
 # Install Ollama binary
