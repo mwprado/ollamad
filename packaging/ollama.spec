@@ -1,5 +1,5 @@
 Name:           ollama
-Version:        0.6.3
+Version:        0.6.2
 Release:        %autorelease
 Summary:        AI assistant daemon
 
@@ -41,13 +41,6 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{bu
 
 # Install Config  Systemd Service file
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{buildroot}%{_sysconfdir}/ollama/ollamad.conf
-
-#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-base.so %{buildroot}%{_libdir}/ollama/libggml-base.so
-#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-alderlake.so %{buildroot}%{_libdir}/ollama/libggml-cpu-alderlake.so
-#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-haswell.so %{buildroot}%{_libdir}/ollama/libggml-cpu-haswell.so
-#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-icelake.so %{buildroot}%{_libdir}/ollama/libggml-cpu-icelake.so
-#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-sandybridge.so %{buildroot}%{_libdir}/ollama/libggml-cpu-sandybridge.so
-#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-sapphirerapids.so %{buildroot}%{_libdir}/ollama/libggml-cpu-sapphirerapids.so
            
 %files
 %defattr(-,root,root)
@@ -55,13 +48,6 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{bu
 %doc README.md
 %{_bindir}/ollama
 %{_unitdir}/ollamad.service
-#%{_libdir}/ollama/libggml-base.so
-#%{_libdir}/ollama/libggml-cpu-alderlake.so
-#%{_libdir}/ollama/libggml-cpu-haswell.so
-#%{_libdir}/ollama/libggml-cpu-icelake.so
-#%{_libdir}/ollama/libggml-cpu-sandybridge.so
-#%{_libdir}/ollama/libggml-cpu-sapphirerapids.so
-#%{_libdir}/ollama/libggml-cpu-skylakex.so
 
 %config(noreplace) %{_sysconfdir}/ollama/ollamad.conf
 %dir %{_sysconfdir}/ollama
