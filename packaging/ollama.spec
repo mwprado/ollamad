@@ -28,7 +28,6 @@ Ollama is a local AI assistant that runs as a daemon.
 
 %build
 # Compile the source code for Ollama
-#make -C %{_builddir}/ollama-%{version}
 cmake -B %{_builddir}/ollama-%{version}
 cmake --build %{_builddir}/ollama-%{version}
 go build
@@ -43,12 +42,12 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{bu
 # Install Config  Systemd Service file
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{buildroot}%{_sysconfdir}/ollama/ollamad.conf
 
-install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-base.so %{buildroot}%{_libdir}/ollama/libggml-base.so
-install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-alderlake.so %{buildroot}%{_libdir}/ollama/libggml-cpu-alderlake.so
-install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-haswell.so %{buildroot}%{_libdir}/ollama/libggml-cpu-haswell.so
-install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-icelake.so %{buildroot}%{_libdir}/ollama/libggml-cpu-icelake.so
-install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-sandybridge.so %{buildroot}%{_libdir}/ollama/libggml-cpu-sandybridge.so
-install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-sapphirerapids.so %{buildroot}%{_libdir}/ollama/libggml-cpu-sapphirerapids.so
+#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-base.so %{buildroot}%{_libdir}/ollama/libggml-base.so
+#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-alderlake.so %{buildroot}%{_libdir}/ollama/libggml-cpu-alderlake.so
+#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-haswell.so %{buildroot}%{_libdir}/ollama/libggml-cpu-haswell.so
+#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-icelake.so %{buildroot}%{_libdir}/ollama/libggml-cpu-icelake.so
+#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-sandybridge.so %{buildroot}%{_libdir}/ollama/libggml-cpu-sandybridge.so
+#install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-sapphirerapids.so %{buildroot}%{_libdir}/ollama/libggml-cpu-sapphirerapids.so
            
 %files
 %defattr(-,root,root)
@@ -56,19 +55,19 @@ install -Dm0644 %{_builddir}/ollama-%{version}/%{_libdir}/ollama/libggml-cpu-sap
 %doc README.md
 %{_bindir}/ollama
 %{_unitdir}/ollamad.service
-%{_libdir}/ollama/libggml-base.so
-%{_libdir}/ollama/libggml-cpu-alderlake.so
-%{_libdir}/ollama/libggml-cpu-haswell.so
-%{_libdir}/ollama/libggml-cpu-icelake.so
-%{_libdir}/ollama/libggml-cpu-sandybridge.so
-%{_libdir}/ollama/libggml-cpu-sapphirerapids.so
-%{_libdir}/ollama/libggml-cpu-skylakex.so
+#%{_libdir}/ollama/libggml-base.so
+#%{_libdir}/ollama/libggml-cpu-alderlake.so
+#%{_libdir}/ollama/libggml-cpu-haswell.so
+#%{_libdir}/ollama/libggml-cpu-icelake.so
+#%{_libdir}/ollama/libggml-cpu-sandybridge.so
+#%{_libdir}/ollama/libggml-cpu-sapphirerapids.so
+#%{_libdir}/ollama/libggml-cpu-skylakex.so
 
 %config(noreplace) %{_sysconfdir}/ollama/ollamad.conf
 %dir %{_sysconfdir}/ollama
 
 %post
-ldconfig
+#ldconfig
 # Reload Systemd daemon to recognize the service
 systemctl daemon-reload
 
