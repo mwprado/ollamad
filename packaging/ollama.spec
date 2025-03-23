@@ -16,6 +16,7 @@ BuildRequires:  systemd
 BuildRequires:  golang
 BuildRequires:  git
 BuildRequires:  gcc-c++
+BuildRequires:  gcc-go
 BuildRequires:  cmake
 BuildRequires:  ccache
 
