@@ -1,5 +1,5 @@
 Name:           ollama
-Version:        0.5.12
+Version:        0.6.3
 Release:        %autorelease
 Summary:        AI assistant daemon
 
