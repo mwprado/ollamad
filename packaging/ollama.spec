@@ -33,7 +33,7 @@ export CUDACXX=/usr/local/cuda/bin/nvcc
 export GIN_MODE=release
 # Compile the source code for Ollama
 cmake -B %{_builddir}/ollama-%{version}  -DCUDAToolkit_ROOT=/usr/local/cuda/ -DCUDACXX=/usr/local/cuda/bin/nvcc -DGIN_MODE=release -DGGML_CCACHE=OFF
-cmake --build %{_builddir}/ollama-%{version}
+cmake --build %{_builddir}/ollama-%{version} -DCUDACXX=/usr/local/cuda/bin/nvcc -DGIN_MODE=release -DGGML_CCACHE=OFF
 go build
 
 %install
