@@ -34,7 +34,7 @@ export GIN_MODE=release
 ls /usr/local/cuda/
 # Compile the source code for Ollama
 cmake -B %{_builddir}/ollama-%{version}  -DCUDAToolkit_ROOT=/usr/local/cuda/
-cmake --build %{_builddir}/ollama-%{version}
+cmake --build %{_builddir}/ollama-%{version} -DCUDAToolkit_ROOT=/usr/local/cuda/
 go build
 
 %install
