@@ -10,4 +10,4 @@ EnvironmentFile=/etc/ollama/ollamad.conf
 ExecStart=/usr/bin/ollama serve
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
