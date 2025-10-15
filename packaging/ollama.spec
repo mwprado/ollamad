@@ -18,6 +18,7 @@ BuildRequires:  git
 BuildRequires:  gcc-c++
 BuildRequires:  cmake
 BuildRequires:  ccache
+BuildRequires:  cuda-12.9.1-1
 
 %description
 Ollama is a local AI assistant that runs as a daemon.
