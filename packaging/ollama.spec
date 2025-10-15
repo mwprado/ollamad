@@ -30,7 +30,7 @@ Ollama is a local AI assistant that runs as a daemon.
 export PATH=$PATH:/usr/local/cuda/bin
 export GIN_MODE=release
 # Compile the source code for Ollama
-cmake -B %{_builddir}/ollama-%{version} -DPATH=$PATH:/usr/local/cuda/bin -DCUDACXX=/usr/local/cuda/bin/nvcc -DGIN_MODE=release -DGGML_CCACHE=OFF
+cmake -B %{_builddir}/ollama-%{version} -D PATH=$PATH:/usr/local/cuda/bin -D CUDACXX=/usr/local/cuda/bin/nvcc -D GIN_MODE=release -D GGML_CCACHE=OFF -D CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda
 cmake --build %{_builddir}/ollama-%{version}
 go build
 
