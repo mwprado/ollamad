@@ -31,6 +31,7 @@ export PATH=$PATH:/usr/local/cuda/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
 export CUDACXX=/usr/local/cuda/bin/nvcc
 export GIN_MODE=release
+ls /usr/local/cuda/
 # Compile the source code for Ollama
 cmake -B %{_builddir}/ollama-%{version}  -DCUDAToolkit_ROOT=/usr/local/cuda/
 cmake --build %{_builddir}/ollama-%{version}
