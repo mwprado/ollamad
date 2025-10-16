@@ -12,12 +12,21 @@ BuildArch:      %{_arch}
 	
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 Requires:       systemd
+BuildRequires:  vulkan 
+BuildRequires:  vulkan-tools
+BuildRequires:  vulkan-headers
+BuildRequires:  vulkan-loader
+BuildRequires:  vulkan-loader-devel
+BuildRequires:  vulkan-validation-layers
+
+
 BuildRequires:  systemd
 BuildRequires:  golang
 BuildRequires:  git
 BuildRequires:  gcc-c++
 BuildRequires:  cmake
 BuildRequires:  ccache
+
 
 
 %description
