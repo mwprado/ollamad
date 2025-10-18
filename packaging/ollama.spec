@@ -18,6 +18,7 @@ BuildRequires:  vulkan-headers
 BuildRequires:  vulkan-loader
 BuildRequires:  vulkan-loader-devel
 BuildRequires:  vulkan-validation-layers
+BuildRequires:  glslc
 
 
 BuildRequires:  systemd
