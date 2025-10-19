@@ -44,9 +44,9 @@ getent passwd ollama >/dev/null || useradd -r -g ollama -d /var/lib/ollama -s /s
 %setup -T -D -a 1
 
 %build
-cmake -B %{_builddir}/ollama-%{version} -DGIN_MODE=release
+cmake -B %{_builddir}/ollama-%{version}
 cmake --build %{_builddir}/ollama-%{version}
-go build
+GIN_MODE=release go build
 
 %install
 # Install Ollama binary
