@@ -57,7 +57,9 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{bu
 
 # Install Config  Systemd Service file
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{buildroot}%{_sysconfdir}/ollama/ollamad.conf
-           
+
+mkdir -p %{buildroot}%{_sharedstatedir}/ollama
+
 %files
 %defattr(-,root,root,-)
 %license LICENSE
@@ -66,7 +68,7 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{bu
 %{_unitdir}/ollamad.service
 
 %attr(775, ollama, ollama) %dir %{_sysconfdir}/ollama
-#%dir %attr(775, ollama, ollama)  %{_sharedstatedir}/ollama
+%dir %attr(775, ollama, ollama)  %{_sharedstatedir}/ollama
 %config(noreplace) %attr(640, ollama, ollama) %{_sysconfdir}/ollama/ollamad.conf
 
 
