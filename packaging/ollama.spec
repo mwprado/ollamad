@@ -12,14 +12,9 @@ BuildArch:      %{_arch}
 	
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 Requires:       systemd
-BuildRequires:  vulkan 
-BuildRequires:  vulkan-tools
-BuildRequires:  vulkan-headers
-BuildRequires:  vulkan-loader
-BuildRequires:  vulkan-loader-devel
-BuildRequires:  vulkan-validation-layers
-BuildRequires:  glslc
-
+Requires:       vulkan
+Requires:       vulkan-loader 
+Requires:       vulkan-tools
 
 BuildRequires:  systemd
 BuildRequires:  golang
@@ -28,21 +23,25 @@ BuildRequires:  gcc-c++
 BuildRequires:  cmake
 BuildRequires:  ccache
 
-
+BuildRequires:  vulkan-tools
+BuildRequires:  vulkan-headers
+BuildRequires:  vulkan-loader-devel
+BuildRequires:  vulkan-validation-layers
+BuildRequires:  glslc
 
 %description
 Ollama is a local AI assistant that runs as a daemon.
+
+%pre
+getent group ollama >/dev/null || groupadd -r ollama
+getent passwd ollama >/dev/null || useradd -r -g ollama -d /var/lib/ollama -s /sbin/nologin ollama
 
 %prep
 %setup
 %setup -T -D -a 1
 
 %build
-export PATH=$PATH:/usr/local/cuda/bin
-export GIN_MODE=release
-#export CUDACXX=/usr/local/cuda/bin/nvcc
-# Compile the source code for Ollama
-cmake -B %{_builddir}/ollama-%{version}
+cmake -B %{_builddir}/ollama-%{version} -DGIN_MODE=release
 cmake --build %{_builddir}/ollama-%{version}
 go build
 
@@ -57,14 +56,14 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{bu
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{buildroot}%{_sysconfdir}/ollama/ollamad.conf
            
 %files
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %license LICENSE
 %doc README.md
 %{_bindir}/ollama
 %{_unitdir}/ollamad.service
 
-%config(noreplace) %{_sysconfdir}/ollama/ollamad.conf
-%dir %{_sysconfdir}/ollama
+%attr(775, ollama, ollama) %dir %{_sysconfdir}/ollama
+%config(noreplace) %attr(640, ollama, ollama) %{_sysconfdir}/ollama/ollamad.conf
 
 %post
 #ldconfig
