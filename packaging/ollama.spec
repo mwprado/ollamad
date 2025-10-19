@@ -66,7 +66,7 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{bu
 %{_unitdir}/ollamad.service
 
 %attr(775, ollama, ollama) %dir %{_sysconfdir}/ollama
-%attr(775, ollama, ollama) %dir %{_sharedstatedir}/ollama
+%dir %attr(775, ollama, ollama)  %{_sharedstatedir}/ollama
 %config(noreplace) %attr(640, ollama, ollama) %{_sysconfdir}/ollama/ollamad.conf
 
 
