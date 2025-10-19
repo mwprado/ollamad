@@ -37,7 +37,7 @@ Ollama is a local AI assistant that runs as a daemon.
 
 %pre
 getent group ollama >/dev/null || groupadd -r ollama
-getent passwd ollama >/dev/null || useradd -r -g ollama -d /var/lib/ollama -s /sbin/nologin ollama
+getent passwd ollama >/dev/null || useradd -r -g ollama -d %{_sharedstatedir}/ollama -s /sbin/nologin ollama
 
 %prep
 %setup
@@ -66,7 +66,9 @@ install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf    %{bu
 %{_unitdir}/ollamad.service
 
 %attr(775, ollama, ollama) %dir %{_sysconfdir}/ollama
+%attr(775, ollama, ollama) %dir %{_sharedstatedir}/ollama
 %config(noreplace) %attr(640, ollama, ollama) %{_sysconfdir}/ollama/ollamad.conf
+
 
 %post
 #ldconfig
