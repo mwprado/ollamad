@@ -3,7 +3,7 @@ Description=Ollama Service
 After=network-online.target
 
 [Service]
-RuntimeDirectory=/var/lib/ollama
+RuntimeDirectory=ollama
 Restart=always
 RestartSec=3
 EnvironmentFile=/etc/ollama/ollamad.conf
