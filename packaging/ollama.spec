@@ -70,16 +70,16 @@ install -d %{buildroot}%{_sharedstatedir}/ollama
 # === libs ggml ===
 install -d %{buildroot}%{_libdir}/ollama
 # ATENÇÃO: caminho corrigido para ollamad-main/ollama/lib/
-install -m0755 %{_builddir}/ollama-%{version}/ollamad-main/lib/ollama/libggml-base.so           %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/ollamad-main/lib/ollama/libggml-cpu-alderlake.so   %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/ollamad-main/lib/ollama/libggml-cpu-haswell.so     %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/ollamad-main/lib/ollama/libggml-cpu-icelake.so     %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/ollamad-main/lib/ollama/libggml-cpu-sandybridge.so %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/ollamad-main/lib/ollama/libggml-cpu-skylakex.so    %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/ollamad-main/lib/ollama/libggml-cpu-sse42.so       %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/ollamad-main/lib/ollama/libggml-cpu-x64.so         %{buildroot}%{_libdir}/ollama/
-#install -m0755 %{_builddir}/ollama-%{version}/ollamad-main/lib/ollama/libggml-cuda.so            %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/ollamad-main/lib/ollama/libggml-vulkan.so          %{buildroot}%{_libdir}/ollama/
+install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-base.so           %{buildroot}%{_libdir}/ollama/
+install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-alderlake.so   %{buildroot}%{_libdir}/ollama/
+install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-haswell.so     %{buildroot}%{_libdir}/ollama/
+install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-icelake.so     %{buildroot}%{_libdir}/ollama/
+install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-sandybridge.so %{buildroot}%{_libdir}/ollama/
+install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-skylakex.so    %{buildroot}%{_libdir}/ollama/
+install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-sse42.so       %{buildroot}%{_libdir}/ollama/
+install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-x64.so         %{buildroot}%{_libdir}/ollama/
+#install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cuda.so            %{buildroot}%{_libdir}/ollama/
+install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-vulkan.so          %{buildroot}%{_libdir}/ollama/
 
 %files
 %defattr(-,root,root,-)
