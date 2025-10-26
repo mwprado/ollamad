@@ -111,7 +111,7 @@ done
 %{_libdir}/ollama/libggml-cpu-sse42.so
 %{_libdir}/ollama/libggml-cpu-x64.so
 
-# %{_libdir}/ollama/libggml-cuda.so
+# % {_libdir}/ollama/libggml-cuda.so
 
 %{_libdir}/ollama/libggml-vulkan.so
 
