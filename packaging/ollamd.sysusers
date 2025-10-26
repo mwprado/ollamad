@@ -1,0 +1,5 @@
+# Type Name ID GECOS Home Directory Shell
+g ollama - "Ollama System Group"  
+u! ollama - "Ollama System User" /var/lib/ollama /usr/sbin/nologin
+
+
