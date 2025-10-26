@@ -61,6 +61,7 @@ install -Dm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}%{_bindir}/oll
 # Service e conf vindos do Source1
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
 install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf %{buildroot}%{_sysconfdir}/ollama/ollamad.conf
+install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollama-ld.conf %{buildroot}%{_sysconfdir}/ld.so.conf.d/ollama-ld.conf
 
 # Diretórios de estado
 install -d %{buildroot}%{_sharedstatedir}/ollama
