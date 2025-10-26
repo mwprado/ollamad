@@ -49,10 +49,10 @@ getent passwd ollama >/dev/null || useradd -r -g ollama -d %{_sharedstatedir}/ol
 
 %build
 # Build Vulkan como no seu spec (ajuste conforme sua pipeline)
-cmake -B %{_builddir}/ollama-%{version} --preset Vulkan  -B build -G Ninja    -W no-dev    -D CMAKE_BUILD_TYPE=Release
+cmake -B %{_builddir}/ollama-%{version} --preset Vulkan   -G Ninja    -W no-dev    -D CMAKE_BUILD_TYPE=Release
 cmake --build %{_builddir}/ollama-%{version}
 # Binário Go
-go build
+go -buildmode=pie -mod=readonly -modcacherw '-ldflags=-linkmode=external -compressdwarf=false' build
 
 %install
 # Binário
