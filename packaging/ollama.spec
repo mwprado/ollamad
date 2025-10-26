@@ -81,6 +81,13 @@ install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-x64.so     
 #install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cuda.so            %{buildroot}%{_libdir}/ollama/
 install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-vulkan.so          %{buildroot}%{_libdir}/ollama/
 
+# --- Corrige RPATH/RUNPATH para evitar erros 0002 e 0010 ---
+for f in %{buildroot}%{_libdir}/ollama/*.so; do
+    patchelf --remove-rpath "$f" || :
+    patchelf --set-rpath '$ORIGIN' "$f"
+done
+
+
 %files
 %defattr(-,root,root,-)
 %license LICENSE
