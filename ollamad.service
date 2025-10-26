@@ -3,13 +3,19 @@ Description=Ollama Service
 After=network-online.target
 
 [Service]
-RuntimeDirectory=ollama
-Restart=always
-RestartSec=3
 EnvironmentFile=/etc/ollama/ollamad.conf
 ExecStart=/usr/bin/ollama serve
+RuntimeDirectory=ollama
+WorkingDirectory=/var/lib/ollama
+Restart=on-failure
+RestartSec=3
 Group=ollama
 User=ollama
+RestartPreventExitStatus=1
+Type=simple
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=yes
 
 [Install]
 WantedBy=multi-user.target
