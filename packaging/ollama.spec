@@ -53,7 +53,7 @@ getent passwd ollama >/dev/null || useradd -r -g ollama -d %{_sharedstatedir}/ol
 cmake -B %{_builddir}/ollama-%{version} --preset Vulkan   -G Ninja    -W no-dev    -D CMAKE_BUILD_TYPE=Release
 cmake --build %{_builddir}/ollama-%{version}
 # Binário Go
-go -buildmode=pie -mod=readonly -modcacherw '-ldflags=-linkmode=external -compressdwarf=false' build
+go build
 
 %install
 # Binário
