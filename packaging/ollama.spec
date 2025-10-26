@@ -55,7 +55,7 @@ getent passwd ollama >/dev/null || useradd -r -g ollama -d %{_sharedstatedir}/ol
 #cmake --build --parallel --preset Vulkan
 #cmake --install build --component Vulkan --strip
 
-cmake -B %{_builddir}/ollama-%{version} --preset Vulkan
+cmake -B %{_builddir}/ollama-%{version} --preset Vulkan -DLLAMA_VULKAN=1
 cmake --build %{_builddir}/ollama-%{version}
 go build
 
