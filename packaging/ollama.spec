@@ -33,6 +33,7 @@ BuildRequires:  vulkan-validation-layers
 BuildRequires:  glslc
 BuildRequires:  glslang
 BuildRequires:  patchelf
+BuildRequires:  ninja-build
 
 %description
 Ollama is a local AI assistant that runs as a daemon.
