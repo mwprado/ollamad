@@ -50,6 +50,7 @@ getent passwd ollama >/dev/null || useradd -r -g ollama -d %{_sharedstatedir}/ol
 # Build Vulkan como no seu spec (ajuste conforme sua pipeline)
 cmake -B %{_builddir}/ollama-%{version} --preset Vulkan
 cmake --build %{_builddir}/ollama-%{version}
+pwd
 find -name *libggml-base.so
 # Binário Go
 go build
