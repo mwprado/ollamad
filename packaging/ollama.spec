@@ -78,7 +78,7 @@ install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-sandybridge
 install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-skylakex.so    %{buildroot}%{_libdir}/ollama/
 install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-sse42.so       %{buildroot}%{_libdir}/ollama/
 install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-x64.so         %{buildroot}%{_libdir}/ollama/
-#install -m0755 % {_builddir}/ollama-%{version}/lib/ollama/libggml-cuda.so            %{buildroot}%{_libdir}/ollama/
+install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cuda.so            %{buildroot}%{_libdir}/ollama/
 install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-vulkan.so          %{buildroot}%{_libdir}/ollama/
 
 # --- Corrige RPATH/RUNPATH para evitar erros 0002 e 0010 ---
@@ -110,7 +110,7 @@ done
 %{_libdir}/ollama/libggml-cpu-skylakex.so
 %{_libdir}/ollama/libggml-cpu-sse42.so
 %{_libdir}/ollama/libggml-cpu-x64.so
-#% {_libdir}/ollama/libggml-cuda.so
+%{_libdir}/ollama/libggml-cuda.so
 %{_libdir}/ollama/libggml-vulkan.so
 
 
