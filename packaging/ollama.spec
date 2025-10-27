@@ -1,5 +1,5 @@
 Name:           ollama
-Version:        0.6.2
+Version:        0.12.6
 Release:        %autorelease
 Summary:        AI assistant daemon
 
@@ -50,7 +50,7 @@ getent passwd ollama >/dev/null || useradd -r -g ollama -d %{_sharedstatedir}/ol
 
 %build
 # Build Vulkan como no seu spec (ajuste conforme sua pipeline)
-cmake -B %{_builddir}/ollama-%{version} --preset Vulkan   -G Ninja    -W no-dev    -D CMAKE_BUILD_TYPE=Release
+cmake -B %{_builddir}/ollama-%{version} --preset Vulkan --preset "CUDA 12" -G Ninja -W no-dev -D CMAKE_BUILD_TYPE=Release
 cmake --build %{_builddir}/ollama-%{version}
 # Binário Go
 go build
