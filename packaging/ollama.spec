@@ -25,7 +25,7 @@ BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig
-BuildRequires:  vulkan-headers
+#BuildRequires:  vulkan-headers
 BuildRequires:  patchelf
 BuildRequires:  chrpath
 BuildRequires:  unzip
@@ -34,7 +34,8 @@ BuildRequires:  systemd-rpm-macros
 # Se forem necessários headers/tooling adicionais para os backends, adicione aqui:
 # (exemplos comuns)
 BuildRequires:  glslc glslang
-BuildRequires:  ocl-icd-devel mesa-libOpenCL
+BuildRequires:  pkgconfig(vulkan)
+BuildRequires:  pkgconfig(OpenCL)
 BuildRequires:  rocm-devel
 
 Requires(post):   systemd
