@@ -91,7 +91,7 @@ export CGO_ENABLED=1
 export GOFLAGS="-buildvcs=false -trimpath"
 
 SRCDIR=%{_builddir}/ollama-%{version}
-BUILDDIR=%{_builddir}/ollama-%{version}-build
+BUILDDIR=%{_builddir}/ollama-%{version}-bld
 
 # ======= UM ÚNICO CONFIGURE/BUILD HABILITANDO BACKENDS =======
 # Ajuste as opções conforme o CMakeLists do commit atual do upstream.
