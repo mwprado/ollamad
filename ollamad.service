@@ -1,21 +1,26 @@
 [Unit]
-Description=Ollama Service
-After=network-online.target
+Description=Ollama (ollamad) Service
+After=network.target
 
 [Service]
-EnvironmentFile=/etc/ollama/ollamad.conf
-ExecStart=/usr/bin/ollama serve
-RuntimeDirectory=ollama
-WorkingDirectory=/var/lib/ollama
-Restart=on-failure
-RestartSec=3
-Group=ollama
 User=ollama
-RestartPreventExitStatus=1
-Type=simple
-PrivateTmp=yes
+Group=ollama
+EnvironmentFile=-/etc/ollamad/ollamad.conf
+Environment=OLLAMA_HOME=/var/lib/ollama
+WorkingDirectory=/var/lib/ollama
+ExecStart=/usr/bin/ollama serve
+StateDirectory=ollama
+UMask=0077
+Restart=on-failure
+
 ProtectSystem=full
-ProtectHome=yes
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+LockPersonality=true
+MemoryDenyWriteExecute=true
 
 [Install]
 WantedBy=multi-user.target
