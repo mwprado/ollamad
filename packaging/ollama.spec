@@ -24,18 +24,27 @@ BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig
+
+# Vulkan support libraries
 BuildRequires:  vulkan-headers
 BuildRequires:  vulkan-tools
 BuildRequires:  vulkan-loader-devel
 BuildRequires:  vulkan-validation-layers
 BuildRequires:  glslc
 BuildRequires:  glslang
+
+# ROCm support libraries
+BuildRequires:  rocm-devel
+
+# Opencl support libraries
+BuildRequires:  ocl-icd-devel
+BuildRequires:  mesa-libOpenCL-devel
+
 BuildRequires:  patchelf
 BuildRequires:  chrpath
 BuildRequires:  unzip
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  ccache
-
 Requires(post):   systemd
 Requires(preun):  systemd
 Requires(postun): systemd
