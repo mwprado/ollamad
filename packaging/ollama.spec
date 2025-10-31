@@ -25,13 +25,16 @@ BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig
 BuildRequires:  vulkan-headers
+BuildRequires:  vulkan-tools
+BuildRequires:  vulkan-loader-devel
+BuildRequires:  vulkan-validation-layers
+BuildRequires:  glslc
+BuildRequires:  glslang
 BuildRequires:  patchelf
 BuildRequires:  chrpath
 BuildRequires:  unzip
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  ccache
-BuildRequires:  glslc
-BuildRequires:  glslang
 
 Requires(post):   systemd
 Requires(preun):  systemd
