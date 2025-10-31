@@ -29,6 +29,7 @@ BuildRequires:  patchelf
 BuildRequires:  chrpath
 BuildRequires:  unzip
 BuildRequires:  systemd-rpm-macros
+BuildRequires:  ccache
 
 Requires(post):   systemd
 Requires(preun):  systemd
