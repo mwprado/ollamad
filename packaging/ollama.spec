@@ -29,10 +29,7 @@ Requires(postun): systemd
 ExclusiveArch:  x86_64 aarch64
 
 # ==================== PACOTE BASE ====================
-%package -n ollama
-Summary:  Ollama (CPU runtime, service, sysusers, config)
-
-%description -n ollama
+%description
 Ollama (CPU). Inclui o binário principal, runners CPU, serviço systemd (ollamad.service),
 sysusers, arquivo de ambiente em /etc/ollamad e ld.so.conf.d para %{_libdir}/ollama.
 
@@ -41,21 +38,21 @@ sysusers, arquivo de ambiente em /etc/ollamad e ld.so.conf.d para %{_libdir}/oll
 Summary:  Vulkan runners for Ollama
 Requires: ollama = %{version}-%{release}
 
-%description -n ollama-vulkan
+%description-vulkan
 Bibliotecas/runners com suporte a Vulkan para o Ollama (instaladas em %{_libdir}/ollama).
 
 %package -n ollama-opencl
 Summary:  OpenCL runners for Ollama
 Requires: ollama = %{version}-%{release}
 
-%description -n ollama-opencl
+%description-opencl
 Bibliotecas/runners com suporte a OpenCL para o Ollama (instaladas em %{_libdir}/ollama).
 
 %package -n ollama-rocm
 Summary:  ROCm/HIP runners for Ollama (AMD)
 Requires: ollama = %{version}-%{release}
 
-%description -n ollama-rocm
+%description-rocm
 Bibliotecas/runners com suporte a ROCm/HIP para o Ollama (instaladas em %{_libdir}/ollama).
 Inclui, quando presente, a árvore rocBLAS/libraries embalada pelo upstream.
 
@@ -134,26 +131,26 @@ install -Dpm0644 %{SOURCE12} %{buildroot}%{_sysconfdir}/ollamad/ollamad.conf
 install -Dpm0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
 
 # ==================== SCRIPTS ====================
-%pre -n ollama
+%pre
 %if 0%{?__systemd_sysusers:1}
 %sysusers_create_compat %{_sysusersdir}/ollamad.conf
 %endif
 exit 0
 
-%post -n ollama
+%post
 %ldconfig
 %systemd_post ollamad.service
 
-%preun -n ollama
+%preun
 %systemd_preun ollamad.service
 
-%postun -n ollama
+%postun
 %ldconfig
 %systemd_postun_with_restart ollamad.service
 
 # ==================== FILES ====================
 # Base (CPU + binário + service/sysusers/config/ld.so.conf.d)
-%files -n ollama
+%files
 %license LICENSE*
 %doc README* docs/*
 %{_bindir}/ollama
@@ -165,16 +162,16 @@ exit 0
 %config %{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
 
 # Vulkan subpackage
-%files -n ollama-vulkan
+%files-vulkan
 %{_libdir}/ollama/*vulkan*.so
 %{_libdir}/ollama/*vk*.so
 
 # OpenCL subpackage
-%files -n ollama-opencl
+%files-opencl
 %{_libdir}/ollama/*opencl*.so
 
 # ROCm subpackage
-%files -n ollama-rocm
+%files-rocm
 %{_libdir}/ollama/*rocm*.so
 %{_libdir}/ollama/*hip*.so
 %{_libdir}/ollama/rocblas*/library/*
