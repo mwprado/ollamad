@@ -6,14 +6,8 @@ License:        MIT
 URL:            https://github.com/ollama/ollama
 
 # Fontes (ZIP)
-Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.zip
-Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
 
-# Arquivos auxiliares (ficam no ROOT das SOURCES, conforme diretriz Fedora)
-Source10:       main/ollamad.sysusers
-Source11:       main/ollamad.service
-Source12:       main/ollamad.conf
-Source13:       main/ollamad-ld.conf
+# Arquivos auxiliares (ROOT das SOURCES)
 
 BuildRequires:  golang
 BuildRequires:  make
@@ -28,7 +22,7 @@ Requires(postun): systemd
 
 ExclusiveArch:  x86_64 aarch64
 
-# ==================== PACOTE BASE ====================
+# ==================== PACOTE BASE (implícito por Name:) ====================
 %description
 Ollama (CPU). Inclui o binário principal, runners CPU, serviço systemd (ollamad.service),
 sysusers, arquivo de ambiente em /etc/ollamad e ld.so.conf.d para %{_libdir}/ollama.
@@ -58,13 +52,9 @@ Inclui, quando presente, a árvore rocBLAS/libraries embalada pelo upstream.
 
 # ==================== PREP/BUILD ====================
 %prep
-# -n: diretório criado do ZIP do Source0 ("ollama-%{version}")
-# -a 1: também extrai o Source1 (cria "ollamad-main")
 %setup -q -n ollama-%{version} -a 1
-# (Se precisar, consuma arquivos do Source1 aqui. Os auxiliares vêm de Source10..13 no ROOT.)
 
 %build
-# Mapear architecture -> GOARCH
 case "%{_arch}" in
   x86_64)  export GOARCH=amd64 ;;
   aarch64) export GOARCH=arm64 ;;
@@ -74,61 +64,44 @@ export GOOS=linux
 export CGO_ENABLED=1
 export GOFLAGS="-buildvcs=false -trimpath"
 
-# Gera artefatos de runtime (se o upstream Makefile suportar; é opcional)
 %make_build dist || :
-
-# Compila o binário principal
 go build -ldflags "-s -w" -o ollama ./cmd/ollama
 
 # ==================== INSTALL ====================
 %install
 rm -rf %{buildroot}
-
-# Binário (pacote base)
 install -Dpm0755 ollama %{buildroot}%{_bindir}/ollama
-
-# Diretório comum de libs
 install -d %{buildroot}%{_libdir}/ollama
 
-# ---- CPU (pacote base) ----
+# CPU (base)
 if [ -d "dist/linux-$GOARCH/lib/ollama" ]; then
   cp -a dist/linux-$GOARCH/lib/ollama/libggml-base.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
   cp -a dist/linux-$GOARCH/lib/ollama/libggml-cpu-*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
 fi
 
-# ---- Vulkan (subpacote ollama-vulkan) ----
+# Vulkan (subpackage)
 cp -a dist/linux-$GOARCH/lib/ollama/*vulkan*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
 cp -a dist/linux-$GOARCH/lib/ollama/*vk*.so     %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
 
-# ---- OpenCL (subpacote ollama-opencl) ----
+# OpenCL (subpackage)
 cp -a dist/linux-$GOARCH/lib/ollama/*opencl*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
 
-# ---- ROCm/HIP (subpacote ollama-rocm) ----
+# ROCm/HIP (subpackage)
 cp -a dist/linux-$GOARCH/lib/ollama/*rocm*.so   %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
 cp -a dist/linux-$GOARCH/lib/ollama/*hip*.so    %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
-# Árvore rocBLAS opcional
 cp -a dist/linux-$GOARCH/lib/ollama/rocblas*/library/* %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
 
-# ---- Sanitizar RPATH/RUNPATH das .so para evitar falhas de QA ----
+# Strip RPATH/RUNPATH
 if ls %{buildroot}%{_libdir}/ollama/*.so >/dev/null 2>&1; then
-  for so in %{buildroot}%{_libdir}/ollama/*.so; do
-    patchelf --remove-rpath "$so" || true
-  done
+  for so in %{buildroot}%{_libdir}/ollama/*.so; do patchelf --remove-rpath "$so" || true; done
 fi
 
-# ---- systemd/sysusers/config/ld.so.conf.d (todos parte do pacote base) ----
-install -Dpm0644 %{SOURCE11} %{buildroot}%{_unitdir}/ollamad.service
-install -Dpm0644 %{SOURCE10} %{buildroot}%{_sysusersdir}/ollamad.conf
-
-# Diretório de config
+# systemd/sysusers/config/ld.so.conf.d
+install -Dpm0644 ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
+install -Dpm0644 ollamad-main/ollamad.sysusers %{buildroot}%{_sysusersdir}/ollamad.conf
 install -d %{buildroot}%{_sysconfdir}/ollamad
-install -Dpm0644 %{SOURCE12} %{buildroot}%{_sysconfdir}/ollamad/ollamad.conf
-
-# ld.so.conf.d (use caminho portátil via macro)
-# Dica: para portabilidade entre x86_64/aarch64, você pode gerar o arquivo em buildtime:
-#   echo "%{_libdir}/ollama" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
-# Aqui instalamos o Source13 estático; ajuste conforme sua política.
-install -Dpm0644 %{SOURCE13} %{buildroot}%{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
+install -Dpm0644 ollamad-main/ollamad.conf %{buildroot}%{_sysconfdir}/ollamad/ollamad.conf
+install -Dpm0644 ollamad-main/ollamad-ld.conf %{buildroot}%{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
 
 # ==================== SCRIPTS ====================
 %pre
@@ -149,7 +122,7 @@ exit 0
 %systemd_postun_with_restart ollamad.service
 
 # ==================== FILES ====================
-# Base (CPU + binário + service/sysusers/config/ld.so.conf.d)
+# Base
 %files
 %license LICENSE*
 %doc README* docs/*
@@ -161,22 +134,22 @@ exit 0
 %config(noreplace) %{_sysconfdir}/ollamad/ollamad.conf
 %config %{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
 
-# Vulkan subpackage
-%files-vulkan
+# Vulkan
+%files -n ollama-vulkan
 %{_libdir}/ollama/*vulkan*.so
 %{_libdir}/ollama/*vk*.so
 
-# OpenCL subpackage
-%files-opencl
+# OpenCL
+%files -n ollama-opencl
 %{_libdir}/ollama/*opencl*.so
 
-# ROCm subpackage
-%files-rocm
+# ROCm
+%files -n ollama-rocm
 %{_libdir}/ollama/*rocm*.so
 %{_libdir}/ollama/*hip*.so
 %{_libdir}/ollama/rocblas*/library/*
 
 %changelog
 * Thu Oct 30 2025 Moacyr <you@example.org> - 0.12.6-4
-- Subpacotes: ollama-vulkan, ollama-opencl, ollama-rocm + base ollama
-- Auxiliares no ROOT; .spec em packaging/
+- Fix: proper subpackage description tags (`%description -n <name>`)
+- Base package uses implicit Name: (no `%package -n ollama`)
