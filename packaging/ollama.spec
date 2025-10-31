@@ -13,7 +13,7 @@ URL:            https://github.com/ollama/ollama
 
 # Subpacotes opcionais (habilitados por padrão)
 %bcond_without vulkan
-#%bcond_without opencl (não existe preset de opencl ainda no ollama)
+# % bcond_without opencl (não existe preset de opencl ainda no ollama)
 %bcond_with opencl
 %bcond_without rocm
 
