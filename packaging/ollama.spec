@@ -38,21 +38,21 @@ sysusers, arquivo de ambiente em /etc/ollamad e ld.so.conf.d para %{_libdir}/oll
 Summary:  Vulkan runners for Ollama
 Requires: ollama = %{version}-%{release}
 
-%description-vulkan
+%description -n ollama-vulkan
 Bibliotecas/runners com suporte a Vulkan para o Ollama (instaladas em %{_libdir}/ollama).
 
 %package -n ollama-opencl
 Summary:  OpenCL runners for Ollama
 Requires: ollama = %{version}-%{release}
 
-%description-opencl
+%description -n ollama-opencl
 Bibliotecas/runners com suporte a OpenCL para o Ollama (instaladas em %{_libdir}/ollama).
 
 %package -n ollama-rocm
 Summary:  ROCm/HIP runners for Ollama (AMD)
 Requires: ollama = %{version}-%{release}
 
-%description-rocm
+%description -n ollama-rocm
 Bibliotecas/runners com suporte a ROCm/HIP para o Ollama (instaladas em %{_libdir}/ollama).
 Inclui, quando presente, a árvore rocBLAS/libraries embalada pelo upstream.
 
