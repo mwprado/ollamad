@@ -4,6 +4,8 @@ Release:        4%{?dist}
 Summary:        Create, run and share large language models (LLMs)
 License:        MIT
 URL:            https://github.com/ollama/ollama
+Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.zip
+Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
 
 # Fontes (ZIP)
 
@@ -84,24 +86,30 @@ rm -rf %{buildroot}
 install -Dpm0755 ollama %{buildroot}%{_bindir}/ollama
 install -d %{buildroot}%{_libdir}/ollama
 
-# CPU (base)
-if [ -d "dist/linux-$GOARCH/lib/ollama" ]; then
-  cp -a dist/linux-$GOARCH/lib/ollama/libggml-base.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
-  cp -a dist/linux-$GOARCH/lib/ollama/libggml-cpu-*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
-fi
+# Collect artifacts from all preset build dirs and legacy dist
+for d in \
+  "%{_builddir}/ollama-%{version}-CPU/dist/linux-$GOARCH/lib/ollama" \
+  "%{_builddir}/ollama-%{version}-Vulkan/dist/linux-$GOARCH/lib/ollama" \
+  "%{_builddir}/ollama-%{version}-OpenCL/dist/linux-$GOARCH/lib/ollama" \
+  "%{_builddir}/ollama-%{version}-ROCm/dist/linux-$GOARCH/lib/ollama" \
+  "dist/linux-$GOARCH/lib/ollama"
+do
+  [ -d "$d" ] || continue
+  # CPU (base)
+  cp -a "$d"/libggml-base.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+  cp -a "$d"/libggml-cpu-*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+  # Vulkan (subpackage)
+  cp -a "$d"/*vulkan*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+  cp -a "$d"/*vk*.so     %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+  # OpenCL (subpackage)
+  cp -a "$d"/*opencl*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+  # ROCm/HIP (subpackage)
+  cp -a "$d"/*rocm*.so   %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+  cp -a "$d"/*hip*.so    %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+  cp -a "$d"/rocblas*/library/* %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+done
 
-# Vulkan (subpackage)
-cp -a dist/linux-$GOARCH/lib/ollama/*vulkan*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
-cp -a dist/linux-$GOARCH/lib/ollama/*vk*.so     %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
-
-# OpenCL (subpackage)
-cp -a dist/linux-$GOARCH/lib/ollama/*opencl*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
-
-# ROCm/HIP (subpackage)
-cp -a dist/linux-$GOARCH/lib/ollama/*rocm*.so   %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
-cp -a dist/linux-$GOARCH/lib/ollama/*hip*.so    %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
-cp -a dist/linux-$GOARCH/lib/ollama/rocblas*/library/* %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
-
+# ---- Sanitizar
 # Strip RPATH/RUNPATH
 if ls %{buildroot}%{_libdir}/ollama/*.so >/dev/null 2>&1; then
   for so in %{buildroot}%{_libdir}/ollama/*.so; do patchelf --remove-rpath "$so" || true; done
