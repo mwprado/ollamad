@@ -1,134 +1,133 @@
+# Base SPEC sem CUDA: inclui CPU + ROCm + Vulkan
 Name:           ollama
 Version:        0.12.7
-Release:        %autorelease
-Summary:        AI assistant daemon
-
+Release:        2%{?dist}
+Summary:        Create, run and share large language models (LLMs)
 License:        MIT
 URL:            https://github.com/ollama/ollama
+Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.tar.gz#/ollama-%{version}.tar.gz
 
-# Upstream e pacote auxiliar com arquivos (service, conf, libs)
-Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.zip
-Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
+# Auxiliares
+Source10:       packaging/ollama.sysusers
+Source11:       packaging/ollama.service
 
-BuildArch:      %{_arch}
-
-Requires(pre):  /usr/sbin/useradd, /usr/bin/getent
-Requires:       systemd
-Requires:       vulkan
-Requires:       vulkan-loader
-Requires:       vulkan-tools
-Requires:       glslc
-Requires:       glslang
-
-BuildRequires:  systemd
+# Build deps (sem CUDA aqui)
 BuildRequires:  golang
-BuildRequires:  git
-BuildRequires:  gcc-c++
-BuildRequires:  cmake
-BuildRequires:  ccache
-BuildRequires:  vulkan-tools
-BuildRequires:  vulkan-headers
-BuildRequires:  vulkan-loader-devel
-BuildRequires:  vulkan-validation-layers
-BuildRequires:  glslc
-BuildRequires:  glslang
+BuildRequires:  make
+BuildRequires:  gcc
+BuildRequires:  systemd-rpm-macros
 BuildRequires:  patchelf
-BuildRequires:  ninja-build
+# Vulkan opcional
+# BuildRequires:  vulkan-headers
+# BuildRequires:  vulkan-loader-devel
+# ROCm opcional (headers/libs de desenvolvimento, conforme repo)
+# BuildRequires:  rocm-hip-sdk
+# BuildRequires:  rocm-opencl
 
-%description
-Ollama is a local AI assistant that runs as a daemon.
+Requires(post):   systemd
+Requires(preun):  systemd
+Requires(postun): systemd
 
-%pre
-getent group ollama >/dev/null || groupadd -r ollama
-getent passwd ollama >/dev/null || useradd -r -g ollama -d %{_sharedstatedir}/ollama -s /sbin/nologin ollama
+ExclusiveArch:  x86_64 aarch64
+
+%package -n ollama
+Summary:  Ollama (CPU)
+%description -n ollama
+Ollama (CPU).
+
+%package -n ollama-rocm
+Summary:  ROCm runners for Ollama (AMD)
+Requires: ollama = %{version}-%{release}
+%description -n ollama-rocm
+Runners ROCm/AMD (se gerados pelo build) instalados em %{_libdir}/ollama.
+
+%package -n ollama-vulkan
+Summary:  Vulkan runners for Ollama
+Requires: ollama = %{version}-%{release}
+%description -n ollama-vulkan
+Runners Vulkan (se gerados pelo build) instalados em %{_libdir}/ollama.
 
 %prep
-# Fonte principal (upstream)
-%setup
-# Fonte auxiliar (seus artefatos)
-%setup -T -D -a 1
+%autosetup -n ollama-%{version}
 
 %build
-# Build Vulkan como no seu spec (ajuste conforme sua pipeline)
-cmake -B %{_builddir}/ollama-%{version} --preset Vulkan --preset "CUDA 12" -G Ninja -W no-dev -D CMAKE_BUILD_TYPE=Release
-cmake --build %{_builddir}/ollama-%{version}
-# Binário Go
-go build
+case "%{_arch}" in
+  x86_64)  export GOARCH=amd64 ;;
+  aarch64) export GOARCH=arm64 ;;
+  *) echo "Arquitetura não suportada: %{_arch}"; exit 1 ;;
+esac
+export GOOS=linux
+export CGO_ENABLED=1
+export GOFLAGS="-buildvcs=false -trimpath"
+
+# Gera dist sem CUDA; pode habilitar ROCm/Vulkan se toolchains existirem
+%make_build dist || :
+# %make_build dist ROCM=1 || :
+# %make_build dist VULKAN=1 || :
+go build -ldflags "-s -w" -o ollama ./cmd/ollama
 
 %install
-# Binário
-install -Dm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}%{_bindir}/ollama
-
-# Service e conf vindos do Source1
-install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
-install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad.conf %{buildroot}%{_sysconfdir}/ollama/ollamad.conf
-install -Dm0644 %{_builddir}/ollama-%{version}/ollamad-main/ollamad-ld.conf %{buildroot}%{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
-
-# Diretórios de estado
-install -d %{buildroot}%{_sharedstatedir}/ollama
-
-# === libs ggml ===
+rm -rf %{buildroot}
+install -Dpm0755 ollama %{buildroot}%{_bindir}/ollama
 install -d %{buildroot}%{_libdir}/ollama
-# ATENÇÃO: caminho corrigido para ollamad-main/ollama/lib/
-install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-base.so           %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-alderlake.so   %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-haswell.so     %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-icelake.so     %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-sandybridge.so %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-skylakex.so    %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-sse42.so       %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-cpu-x64.so         %{buildroot}%{_libdir}/ollama/
-# install -m0755 % {_builddir}/ollama-%{version}/lib/ollama/libggml-cuda.so            %{buildroot}%{_libdir}/ollama/
-install -m0755 %{_builddir}/ollama-%{version}/lib/ollama/libggml-vulkan.so          %{buildroot}%{_libdir}/ollama/
 
-# --- Corrige RPATH/RUNPATH para evitar erros 0002 e 0010 ---
-for f in %{buildroot}%{_libdir}/ollama/*.so; do
-    patchelf --remove-rpath "$f" || :
-    patchelf --set-rpath '$ORIGIN' "$f"
-done
+# CPU
+if [ -d "dist/linux-$GOARCH/lib/ollama" ]; then
+  cp -a dist/linux-$GOARCH/lib/ollama/libggml-base.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+  cp -a dist/linux-$GOARCH/lib/ollama/libggml-cpu-*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+fi
 
+# ROCm (se presentes)
+cp -a dist/linux-$GOARCH/lib/ollama/*rocm*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+cp -a dist/linux-$GOARCH/lib/ollama/*hip*.so  %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+cp -a dist/linux-$GOARCH/lib/ollama/*opencl*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
 
-%files
-%defattr(-,root,root,-)
-%license LICENSE
-%doc README.md
+# Vulkan (se presentes)
+cp -a dist/linux-$GOARCH/lib/ollama/*vulkan*.so %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+cp -a dist/linux-$GOARCH/lib/ollama/*vk*.so     %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
 
+# limpar RPATH
+if ls %{buildroot}%{_libdir}/ollama/*.so >/dev/null 2>&1; then
+  for so in %{buildroot}%{_libdir}/ollama/*.so; do patchelf --remove-rpath "$so" || true; done
+fi
+
+install -Dpm0644 %{SOURCE11} %{buildroot}%{_unitdir}/ollama.service
+install -Dpm0644 %{SOURCE10} %{buildroot}%{_sysusersdir}/ollama.conf
+
+%pre -n ollama
+%if 0%{?__systemd_sysusers:1}
+%sysusers_create_compat %{_sysusersdir}/ollama.conf
+%endif
+exit 0
+
+%post -n ollama
+%systemd_post ollama.service
+
+%preun -n ollama
+%systemd_preun ollama.service
+
+%postun -n ollama
+%systemd_postun_with_restart ollama.service
+
+%files -n ollama
+%license LICENSE*
+%doc README* docs/*
 %{_bindir}/ollama
-%{_unitdir}/ollamad.service
-
-%attr(775, ollama, ollama) %dir %{_sysconfdir}/ollama
-%dir %attr(775, ollama, ollama) %{_sharedstatedir}/ollama
-%config(noreplace) %attr(640, ollama, ollama) %{_sysconfdir}/ollama/ollamad.conf
-%config(noreplace) %{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
-
-%dir %{_libdir}/ollama
 %{_libdir}/ollama/libggml-base.so
-%{_libdir}/ollama/libggml-cpu-alderlake.so
-%{_libdir}/ollama/libggml-cpu-haswell.so
-%{_libdir}/ollama/libggml-cpu-icelake.so
-%{_libdir}/ollama/libggml-cpu-sandybridge.so
-%{_libdir}/ollama/libggml-cpu-skylakex.so
-%{_libdir}/ollama/libggml-cpu-sse42.so
-%{_libdir}/ollama/libggml-cpu-x64.so
+%{_libdir}/ollama/libggml-cpu-*.so
+%{_unitdir}/ollama.service
+%{_sysusersdir}/ollama.conf
 
-# % {_libdir}/ollama/libggml-cuda.so
+%files -n ollama-rocm
+%{_libdir}/ollama/*rocm*.so
+%{_libdir}/ollama/*hip*.so
+%{_libdir}/ollama/*opencl*.so
+%{_libdir}/ollama/rocblas*/library/*
 
-%{_libdir}/ollama/libggml-vulkan.so
-
-
-%post
-systemctl daemon-reload
-
-%preun
-if [ $1 -eq 0 ]; then
-    systemctl stop ollamad.service || true
-    systemctl disable ollamad.service || true
-fi
-
-%postun
-if [ $1 -eq 0 ]; then
-    systemctl daemon-reload
-fi
+%files -n ollama-vulkan
+%{_libdir}/ollama/*vulkan*.so
+%{_libdir}/ollama/*vk*.so
 
 %changelog
-%autochangelog
+* Thu Oct 30 2025 Moacyr <you@example.org> - 0.12.6-2
+- Split: removido CUDA deste SPEC; CUDA vai para SPEC separado (RPM Fusion)
