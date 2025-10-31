@@ -13,8 +13,6 @@ URL:            https://github.com/ollama/ollama
 
 # Subpacotes opcionais (habilitados por padrão)
 %bcond_without vulkan
-# % bcond_without opencl (não existe preset de opencl ainda no ollama)
-%bcond_with opencl
 %bcond_without rocm
 
 Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.zip
@@ -36,7 +34,6 @@ BuildRequires:  ccache
 # (exemplos comuns)
 BuildRequires:  glslc glslang
 BuildRequires:  pkgconfig(vulkan)
-BuildRequires:  pkgconfig(OpenCL)
 BuildRequires:  rocm-devel
 
 Requires(post):   systemd
@@ -46,7 +43,7 @@ Requires(postun): systemd
 ExclusiveArch:  x86_64 aarch64
 
 %description
-Ollama. Compila o binário principal e gera/liga os backends de GPU (Vulkan/OpenCL/ROCm)
+Ollama. Compila o binário principal e gera/liga os backends de GPU (Vulkan/ROCm)
 em um único build. Instala serviço systemd (ollamad.service), sysusers, ambiente em
 /etc/ollamad e registra %{ollama_libdir} no ldconfig.
 
@@ -58,15 +55,6 @@ Requires: ollama = %{version}-%{release}
 
 %description -n ollama-vulkan
 Bibliotecas/runners com suporte a Vulkan para o Ollama (instaladas em %{ollama_libdir}).
-%endif
-
-%if %{with opencl}
-%package -n ollama-opencl
-Summary:  OpenCL runners for Ollama
-Requires: ollama = %{version}-%{release}
-
-%description -n ollama-opencl
-Bibliotecas/runners com suporte a OpenCL para o Ollama (instaladas em %{ollama_libdir}).
 %endif
 
 %if %{with rocm}
@@ -116,11 +104,6 @@ cmake -S "$SRCDIR" -B "$BUILDDIR" \
 %else
   -DGGML_VULKAN=OFF \
 %endif
-%if %{with opencl}
-  -DGGML_OPENCL=ON \
-%else
-  -DGGML_OPENCL=OFF \
-%endif
 %if %{with rocm}
   -DGGML_HIP=ON \
 %else
@@ -157,9 +140,6 @@ for src in \
 %if %{with vulkan}
   cp -a "$src"/*vulkan*.so %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
   cp -a "$src"/*vk*.so     %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
-%endif
-%if %{with opencl}
-  cp -a "$src"/*opencl*.so %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
 %endif
 %if %{with rocm}
   cp -a "$src"/*rocm*.so   %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
@@ -220,11 +200,6 @@ exit 0
 %{ollama_libdir}/*vk*.so
 %endif
 
-%if %{with opencl}
-%files -n ollama-opencl
-%{ollama_libdir}/*opencl*.so
-%endif
-
 %if %{with rocm}
 %files -n ollama-rocm
 %{ollama_libdir}/*rocm*.so
@@ -234,6 +209,6 @@ exit 0
 
 %changelog
 * Fri Oct 31 2025 Moacyr <you@example.org> - 0.12.7-5
-- Remove loop de presets; um único configure/build habilitando Vulkan/OpenCL/ROCm
+- Remove loop de presets; um único configure/build habilitando Vulkan/ROCm
 - Coleta das libs a partir de um único builddir
 - Mantém limpeza de RPATH/RUNPATH e destino em /usr/lib/ollama
