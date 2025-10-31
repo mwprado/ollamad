@@ -8,8 +8,10 @@ URL:            https://github.com/ollama/ollama
 Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.tar.gz#/ollama-%{version}.tar.gz
 
 # Auxiliares
-Source10:       packaging/ollama.sysusers
-Source11:       packaging/ollama.service
+Source10:       packaging/ollamad.sysusers
+Source11:       packaging/ollamad.service
+Source12:       packaging/ollamad.conf
+Source13:       packaging/ollamad-ld.conf
 
 # Build deps (sem CUDA aqui)
 BuildRequires:  golang
@@ -91,23 +93,27 @@ if ls %{buildroot}%{_libdir}/ollama/*.so >/dev/null 2>&1; then
   for so in %{buildroot}%{_libdir}/ollama/*.so; do patchelf --remove-rpath "$so" || true; done
 fi
 
-install -Dpm0644 %{SOURCE11} %{buildroot}%{_unitdir}/ollama.service
-install -Dpm0644 %{SOURCE10} %{buildroot}%{_sysusersdir}/ollama.conf
-
+install -Dpm0644 %{SOURCE11} %{buildroot}%{_unitdir}/ollamad.service
+%config %{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
+install -Dpm0644 %{SOURCE10} %{buildroot}%{_sysusersdir}/ollamad.conf
+%config(noreplace) %{_sysconfdir}/ollamad/ollamad.conf
 %pre -n ollama
 %if 0%{?__systemd_sysusers:1}
-%sysusers_create_compat %{_sysusersdir}/ollama.conf
+%sysusers_create_compat %{_sysusersdir}/ollamad.conf
+%config(noreplace) %{_sysconfdir}/ollamad/ollamad.conf
 %endif
 exit 0
 
 %post -n ollama
-%systemd_post ollama.service
+%ldconfig
+%systemd_post ollamad.service
 
 %preun -n ollama
-%systemd_preun ollama.service
+%systemd_preun ollamad.service
 
 %postun -n ollama
-%systemd_postun_with_restart ollama.service
+%ldconfig
+%systemd_postun_with_restart ollamad.service
 
 %files -n ollama
 %license LICENSE*
@@ -115,8 +121,10 @@ exit 0
 %{_bindir}/ollama
 %{_libdir}/ollama/libggml-base.so
 %{_libdir}/ollama/libggml-cpu-*.so
-%{_unitdir}/ollama.service
-%{_sysusersdir}/ollama.conf
+%{_unitdir}/ollamad.service
+%config %{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
+%{_sysusersdir}/ollamad.conf
+%config(noreplace) %{_sysconfdir}/ollamad/ollamad.conf
 
 %files -n ollama-rocm
 %{_libdir}/ollama/*rocm*.so
