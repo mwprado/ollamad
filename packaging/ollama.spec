@@ -151,6 +151,20 @@ install -Dpm0644 ollamad-main/ollamad.conf %{buildroot}%{_sysconfdir}/ollamad/ol
 install -d %{buildroot}%{_sysconfdir}/ld.so.conf.d
 echo "%{_libdir}/ollama" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
 
+# --- Normaliza destino para %{_libdir}/ollama ---
+# Se algum preset/copiar jogou libs em /usr/lib/ollama, mova para %{_libdir}/ollama
+if [ "%{_libdir}" != "/usr/lib" ] && [ -d "%{buildroot}/usr/lib/ollama" ]; then
+  mkdir -p %{buildroot}%{_libdir}
+  if [ -d "%{buildroot}%{_libdir}/ollama" ]; then
+    cp -a %{buildroot}/usr/lib/ollama/* %{buildroot}%{_libdir}/ollama/ 2>/dev/null || true
+    rm -rf %{buildroot}/usr/lib/ollama
+  else
+    mv -f %{buildroot}/usr/lib/ollama %{buildroot}%{_libdir}/ || true
+  fi
+  rmdir --ignore-fail-on-non-empty %{buildroot}/usr/lib 2>/dev/null || true
+fi
+
+
 %pre
 %if 0%{?__systemd_sysusers:1}
 %sysusers_create_compat %{_sysusersdir}/ollamad.conf
