@@ -10,10 +10,10 @@ Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.z
 Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
 
 # Arquivos auxiliares (ficam no ROOT das SOURCES, conforme diretriz Fedora)
-Source10:       ollamad.sysusers
-Source11:       ollamad.service
-Source12:       ollamad.conf
-Source13:       ollamad-ld.conf
+Source10:       main/ollamad.sysusers
+Source11:       main/ollamad.service
+Source12:       main/ollamad.conf
+Source13:       main/ollamad-ld.conf
 
 BuildRequires:  golang
 BuildRequires:  make
