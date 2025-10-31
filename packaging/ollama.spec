@@ -30,6 +30,8 @@ BuildRequires:  chrpath
 BuildRequires:  unzip
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  ccache
+BuildRequires:  glslc
+BuildRequires:  glslang
 
 Requires(post):   systemd
 Requires(preun):  systemd
