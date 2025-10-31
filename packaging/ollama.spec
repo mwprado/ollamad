@@ -30,6 +30,7 @@ BuildRequires:  patchelf
 BuildRequires:  chrpath
 BuildRequires:  unzip
 BuildRequires:  systemd-rpm-macros
+BuildRequires:  ccache
 
 # Se forem necessários headers/tooling adicionais para os backends, adicione aqui:
 # (exemplos comuns)
