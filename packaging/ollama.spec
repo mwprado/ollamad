@@ -86,7 +86,7 @@ done
 
 # Binário Go a partir do SRCDIR
 mkdir -p %{_builddir}/ollama-%{version}
-( cd "$SRCDIR" && go build -ldflags "-s -w" -o %{_builddir}/ollama-%{version}/ollama ./cmd/ollama )
+( cd "$SRCDIR" && go build -ldflags "-s -w" -o %{_builddir}/ollama-%{version}/ollama .)
 
 %install
 rm -rf %{buildroot}
