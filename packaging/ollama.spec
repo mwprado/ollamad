@@ -1,5 +1,5 @@
 Name:           ollama
-Version:        0.12.7
+Version:        0.12.6
 Release:        4%{?dist}
 Summary:        Create, run and share large language models (LLMs)
 License:        MIT
@@ -10,6 +10,10 @@ URL:            https://github.com/ollama/ollama
 # Arquivos auxiliares (ROOT das SOURCES)
 
 BuildRequires:  golang
+BuildRequires:  vulkan-headers
+BuildRequires:  pkgconfig
+BuildRequires:  gcc-c++
+BuildRequires:  cmake
 BuildRequires:  make
 BuildRequires:  gcc
 BuildRequires:  systemd-rpm-macros
@@ -60,14 +64,21 @@ case "%{_arch}" in
   aarch64) export GOARCH=arm64 ;;
   *) echo "Arquitetura não suportada: %{_arch}"; exit 1 ;;
 esac
+
 export GOOS=linux
 export CGO_ENABLED=1
 export GOFLAGS="-buildvcs=false -trimpath"
 
-%make_build dist || :
+# Compile all desired presets; tolerate missing ones
+for preset in CPU Vulkan OpenCL ROCm; do
+  echo "===> Compilando preset: $preset"
+  cmake --preset "$preset" -B %{_builddir}/ollama-%{version}-$preset || :
+  cmake --build %{_builddir}/ollama-%{version}-$preset -j%{?_smp_build_ncpus} || :
+done
+
+# Binário Go principal
 go build -ldflags "-s -w" -o ollama ./cmd/ollama
 
-# ==================== INSTALL ====================
 %install
 rm -rf %{buildroot}
 install -Dpm0755 ollama %{buildroot}%{_bindir}/ollama
