@@ -1,16 +1,17 @@
 Name:           ollama
 Version:        0.12.7
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Create, run and share large language models (LLMs)
 License:        MIT
 URL:            https://github.com/ollama/ollama
 
-# Paths/macros
+# Paths/macros (fallbacks)
 %{!?_unitdir:%global _unitdir /usr/lib/systemd/system}
 %{!?_sysusersdir:%global _sysusersdir /usr/lib/sysusers.d}
+# Destino único para as libs (força /usr/lib mesmo em x86_64)
 %global ollama_libdir %{_prefix}/lib/ollama
 
-# Optional subpackages (enabled by default)
+# Subpacotes opcionais (habilitados por padrão)
 %bcond_without vulkan
 %bcond_without opencl
 %bcond_without rocm
@@ -24,27 +25,18 @@ BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig
-
-# Vulkan support libraries
 BuildRequires:  vulkan-headers
-BuildRequires:  vulkan-tools
-BuildRequires:  vulkan-loader-devel
-BuildRequires:  vulkan-validation-layers
-BuildRequires:  glslc
-BuildRequires:  glslang
-
-# ROCm support libraries
-BuildRequires:  rocm-devel
-
-# Opencl support libraries
-BuildRequires:  ocl-icd-devel
-BuildRequires:  mesa-libOpenCL-devel
-
 BuildRequires:  patchelf
 BuildRequires:  chrpath
 BuildRequires:  unzip
 BuildRequires:  systemd-rpm-macros
-BuildRequires:  ccache
+
+# Se forem necessários headers/tooling adicionais para os backends, adicione aqui:
+# (exemplos comuns)
+BuildRequires:  glslc glslang
+BuildRequires:  ocl-icd-devel mesa-libOpenCL
+BuildRequires:  rocm-devel
+
 Requires(post):   systemd
 Requires(preun):  systemd
 Requires(postun): systemd
@@ -52,8 +44,9 @@ Requires(postun): systemd
 ExclusiveArch:  x86_64 aarch64
 
 %description
-Ollama (CPU). Inclui o binário principal, serviço systemd (ollamad.service), sysusers,
-arquivo de ambiente em /etc/ollamad e registro de %{ollama_libdir} no ldconfig.
+Ollama. Compila o binário principal e gera/liga os backends de GPU (Vulkan/OpenCL/ROCm)
+em um único build. Instala serviço systemd (ollamad.service), sysusers, ambiente em
+/etc/ollamad e registra %{ollama_libdir} no ldconfig.
 
 # ---------- Subpackages ----------
 %if %{with vulkan}
@@ -88,10 +81,12 @@ Inclui, quando presente, a árvore rocBLAS/libraries embalada pelo upstream.
 %setup -q -n ollama-%{version} -a 1
 
 %check
+# Confere Source1 (ollamad-main) e arquivos necessários
 test -d ollamad-main
 test -f ollamad-main/ollamad.service
 test -f ollamad-main/ollamad.sysusers
 test -f ollamad-main/ollamad.conf
+# CMakePresets pode ou não existir, depende do commit
 test -f CMakePresets.json || true
 
 %build
@@ -106,24 +101,34 @@ export CGO_ENABLED=1
 export GOFLAGS="-buildvcs=false -trimpath"
 
 SRCDIR=%{_builddir}/ollama-%{version}
+BUILDDIR=%{_builddir}/ollama-%{version}-build
 
-presets="CPU"
+# ======= UM ÚNICO CONFIGURE/BUILD HABILITANDO BACKENDS =======
+# Ajuste as opções conforme o CMakeLists do commit atual do upstream.
+# GGML_BACKEND_DL=ON para backends dinâmicos (.so) e os toggles de cada backend.
+cmake -S "$SRCDIR" -B "$BUILDDIR" \
+  -DBUILD_SHARED_LIBS=ON \
+  -DGGML_BACKEND_DL=ON \
 %if %{with vulkan}
-presets="$presets Vulkan"
+  -DGGML_VULKAN=ON \
+%else
+  -DGGML_VULKAN=OFF \
 %endif
 %if %{with opencl}
-presets="$presets OpenCL"
+  -DGGML_OPENCL=ON \
+%else
+  -DGGML_OPENCL=OFF \
 %endif
 %if %{with rocm}
-presets="$presets ROCm"
+  -DGGML_HIP=ON \
+%else
+  -DGGML_HIP=OFF \
 %endif
+  -DCMAKE_BUILD_TYPE=Release
 
-for preset in $presets; do
-  echo "===> Compilando preset: $preset"
-  cmake -S "$SRCDIR" --preset "$preset" -B %{_builddir}/ollama-%{version}-$preset || :
-  cmake --build %{_builddir}/ollama-%{version}-$preset -j%{?_smp_build_ncpus} || :
-done
+cmake --build "$BUILDDIR" -j%{?_smp_build_ncpus}
 
+# Binário Go (uma vez só)
 mkdir -p %{_builddir}/ollama-%{version}
 ( cd "$SRCDIR" && \
   if [ -f main.go ]; then \
@@ -135,45 +140,33 @@ mkdir -p %{_builddir}/ollama-%{version}
 %install
 rm -rf %{buildroot}
 
-# Binary
+# Binário
 install -Dpm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}%{_bindir}/ollama
 
-# Runners -> /usr/lib/ollama
+# Runners -> /usr/lib/ollama (apenas GPU; não copiamos libs CPU)
 install -d %{buildroot}%{ollama_libdir}
 
-# Collect only GPU runners (NO CPU libs here)
-for d in \
-  "%{_builddir}/ollama-%{version}-CPU" \
-  "%{_builddir}/ollama-%{version}-Vulkan" \
-  "%{_builddir}/ollama-%{version}-OpenCL" \
-  "%{_builddir}/ollama-%{version}-ROCm" \
-  "%{_builddir}/ollama-%{version}" \
+# Coleta de UM ÚNICO builddir (dist preferencial; fallback lib/)
+for src in \
+  "%{_builddir}/ollama-%{version}-build/dist/linux-$GOARCH/lib/ollama" \
+  "%{_builddir}/ollama-%{version}-build/lib/ollama" \
 ; do
-  for sub in \
-    "dist/linux-$GOARCH/lib/ollama" \
-    "lib/ollama" \
-  ; do
-    src="$d/$sub"
-    [ -d "$src" ] || continue
-
+  [ -d "$src" ] || continue
 %if %{with vulkan}
-    cp -a "$src"/*vulkan*.so %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
-    cp -a "$src"/*vk*.so     %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
+  cp -a "$src"/*vulkan*.so %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
+  cp -a "$src"/*vk*.so     %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
 %endif
-
 %if %{with opencl}
-    cp -a "$src"/*opencl*.so %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
+  cp -a "$src"/*opencl*.so %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
 %endif
-
 %if %{with rocm}
-    cp -a "$src"/*rocm*.so   %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
-    cp -a "$src"/*hip*.so    %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
-    cp -a "$src"/rocblas*/library/* %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
+  cp -a "$src"/*rocm*.so   %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
+  cp -a "$src"/*hip*.so    %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
+  cp -a "$src"/rocblas*/library/* %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
 %endif
-  done
 done
 
-# Clean RPATH/RUNPATH on installed .so (QA_RPATHS compliance)
+# Limpa RPATH/RUNPATH (conformidade QA Fedora)
 if ls %{buildroot}%{ollama_libdir}/*.so >/dev/null 2>&1; then
   for so in %{buildroot}%{ollama_libdir}/*.so; do
     chrpath -d "$so" 2>/dev/null || true
@@ -181,7 +174,7 @@ if ls %{buildroot}%{ollama_libdir}/*.so >/dev/null 2>&1; then
   done
 fi
 
-# systemd/sysusers/config from Source1
+# systemd/sysusers/config a partir do Source1 (ollamad-main)
 install -Dpm0644 ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
 install -Dpm0644 ollamad-main/ollamad.sysusers %{buildroot}%{_sysusersdir}/ollamad.conf
 install -d %{buildroot}%{_sysconfdir}/ollamad
@@ -189,7 +182,7 @@ install -Dpm0644 ollamad-main/ollamad.conf %{buildroot}%{_sysconfdir}/ollamad/ol
 
 # ld.so.conf.d -> /usr/lib/ollama
 install -d %{buildroot}%{_sysconfdir}/ld.so.conf.d
-echo "%{_prefix}/lib/ollama" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
+echo "%{ollama_libdir}" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
 
 %pre
 %if 0%{?__systemd_sysusers:1}
@@ -238,8 +231,7 @@ exit 0
 %endif
 
 %changelog
-* Fri Oct 31 2025 Moacyr <you@example.org> - 0.12.7-4
-- Remove CPU libs do buildroot (evita falhas do check-rpaths)
-- Limpeza de RPATH/RUNPATH com chrpath/patchelf nas .so instaladas
-- Subpacotes condicionais via %%bcond (vulkan/opencl/rocm)
-- Mantém instalação em /usr/lib/ollama
+* Fri Oct 31 2025 Moacyr <you@example.org> - 0.12.7-5
+- Remove loop de presets; um único configure/build habilitando Vulkan/OpenCL/ROCm
+- Coleta das libs a partir de um único builddir
+- Mantém limpeza de RPATH/RUNPATH e destino em /usr/lib/ollama
