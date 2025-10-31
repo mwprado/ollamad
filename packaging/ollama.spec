@@ -26,7 +26,6 @@ BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig
-#BuildRequires:  vulkan-headers
 BuildRequires:  patchelf
 BuildRequires:  chrpath
 BuildRequires:  unzip
