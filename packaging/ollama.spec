@@ -32,9 +32,13 @@ BuildRequires:  ccache
 %if %{without vulkan}
 # Vulkan desativado
 %else
+BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  glslc
 BuildRequires:  glslang
-BuildRequires:  pkgconfig(vulkan)
+BuildRequires:  VulkanMemoryAllocator-devel
+BuildRequires:  vulkan-headers
+BuildRequires:  vulkan-loader-devel
+BuildRequires:  vulkan-tools
 BuildRequires:  spirv-tools
 BuildRequires:  shaderc
 %global pck_build_vulkan 1
@@ -48,8 +52,6 @@ BuildRequires:  rocm-core
 BuildRequires:  hip-devel
 BuildRequires:  rocblas-devel
 BuildRequires:  rocm-device-libs
-BuildRequires:  pkgconfig(hip)
-BuildRequires:  pkgconfig(ROCM)
 %global pck_build_rocm 1
 %endif
 
