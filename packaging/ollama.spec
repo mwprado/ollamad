@@ -33,10 +33,7 @@ BuildRequires:  systemd-rpm-macros
 %else
 BuildRequires:  glslc
 BuildRequires:  glslang
-BuildRequires:  vulkan-headers
-BuildRequires:  vulkan-loader-devel
 BuildRequires:  pkgconfig(vulkan)
-BuildRequires:  pkgconfig(Vulkan)
 BuildRequires:  spirv-tools
 BuildRequires:  shaderc
 %global pck_build_vulkan 1
@@ -113,7 +110,7 @@ rm -f "$STAGING"/usr/lib/ollama/rocm/rocblas/library/*gfx90[06]*
 %endif
 popd
 
-( cd "$SRCDIR" && go build -trimpath -buildmode=pie -ldflags "-s -w" -o "$GOBINDIR/ollama" ./cmd/ollama )
+( cd "$SRCDIR" && go build -trimpath -buildmode=pie -ldflags "-s -w" -o "$GOBINDIR/ollama" ./ollama )
 
 %install
 rm -rf %{buildroot}
