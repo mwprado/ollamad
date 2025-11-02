@@ -1,40 +1,49 @@
 Name:           ollama
 Version:        0.12.8
-Release:        5%{?dist}
+Release:        7%{?dist}
 Summary:        Create, run and share large language models (LLMs)
 License:        MIT
 URL:            https://github.com/ollama/ollama
 
-# Paths/macros (fallbacks)
+# Fallbacks de paths
 %{!?_unitdir:%global _unitdir /usr/lib/systemd/system}
 %{!?_sysusersdir:%global _sysusersdir /usr/lib/sysusers.d}
-# Destino único para as libs (força /usr/lib mesmo em x86_64)
-%global ollama_libdir %{_prefix}/lib/ollama
 
-# Subpacotes opcionais (habilitados por padrão)
+# Sempre instalar em /usr/lib/ollama (mesmo em x86_64)
+%global ollama_libdir /usr/lib/ollama
+
+# Habilite/desabilite subpacotes GPU conforme desejar
 %bcond_without vulkan
 %bcond_without rocm
+# OpenCL fica fora (sem preset/documentação estável)
+%bcond_with opencl
 
+# Fontes
 Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.zip
 Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
 
+# Requisitos de build
 BuildRequires:  golang
 BuildRequires:  make
 BuildRequires:  gcc
-BuildRequires:  cmake
 BuildRequires:  gcc-c++
+BuildRequires:  cmake
 BuildRequires:  pkgconfig
 BuildRequires:  patchelf
 BuildRequires:  chrpath
 BuildRequires:  unzip
 BuildRequires:  systemd-rpm-macros
-BuildRequires:  ccache
-
-# Se forem necessários headers/tooling adicionais para os backends, adicione aqui:
-# (exemplos comuns)
-BuildRequires:  glslc glslang
-BuildRequires:  pkgconfig(vulkan)
-BuildRequires:  rocm-devel
+# Para Vulkan presets (ajuste conforme chroot)
+%if %{with vulkan}
+BuildRequires:  vulkan-headers
+#BuildRequires:  glslc
+#BuildRequires:  glslang
+%endif
+# Para ROCm (ajuste conforme disponibilidade COPR/Mock)
+%if %{with rocm}
+#BuildRequires:  rocm-devel
+#BuildRequires:  hip-devel
+%endif
 
 Requires(post):   systemd
 Requires(preun):  systemd
@@ -43,43 +52,46 @@ Requires(postun): systemd
 ExclusiveArch:  x86_64 aarch64
 
 %description
-Ollama. Compila o binário principal e gera/liga os backends de GPU (Vulkan/ROCm)
-em um único build. Instala serviço systemd (ollamad.service), sysusers, ambiente em
-/etc/ollamad e registra %{ollama_libdir} no ldconfig.
+Ollama. Empacota seguindo o fluxo do Dockerfile oficial:
+- CMake presets por componente (CPU, Vulkan, ROCm/HIP) com 'cmake --install ... --component ...'
+- Binário Go compilado com -buildmode=pie
+- Systemd (ollamad.service), sysusers, configuração em /etc/ollamad
+- ld.so.conf.d apontando /usr/lib/ollama
 
-# ---------- Subpackages ----------
+# --------- Subpacotes ----------
 %if %{with vulkan}
 %package -n ollama-vulkan
-Summary:  Vulkan runners for Ollama
+Summary: Vulkan runners for Ollama
 Requires: ollama = %{version}-%{release}
 
 %description -n ollama-vulkan
-Bibliotecas/runners com suporte a Vulkan para o Ollama (instaladas em %{ollama_libdir}).
+Runners/Bibliotecas Vulkan do Ollama (instaladas em %{ollama_libdir}).
 %endif
 
 %if %{with rocm}
 %package -n ollama-rocm
-Summary:  ROCm/HIP runners for Ollama (AMD)
+Summary: ROCm/HIP runners for Ollama (AMD)
 Requires: ollama = %{version}-%{release}
 
 %description -n ollama-rocm
-Bibliotecas/runners com suporte a ROCm/HIP para o Ollama (instaladas em %{ollama_libdir}).
-Inclui, quando presente, a árvore rocBLAS/libraries embalada pelo upstream.
+Runners/Bibliotecas ROCm/HIP do Ollama (instaladas em %{ollama_libdir}).
+Inclui bibliotecas rocBLAS conforme instaladas pelo componente HIP.
 %endif
 
 %prep
 %setup -q -n ollama-%{version} -a 1
 
 %check
-# Confere Source1 (ollamad-main) e arquivos necessários
+# Garante que Source1 trouxe os artefatos de serviço/config
 test -d ollamad-main
 test -f ollamad-main/ollamad.service
 test -f ollamad-main/ollamad.sysusers
 test -f ollamad-main/ollamad.conf
-# CMakePresets pode ou não existir, depende do commit
+# CMakePresets.json pode ou não existir; presets são esperados no upstream
 test -f CMakePresets.json || true
 
 %build
+# GOARCH
 case "%{_arch}" in
   x86_64)  export GOARCH=amd64 ;;
   aarch64) export GOARCH=arm64 ;;
@@ -89,66 +101,65 @@ esac
 export GOOS=linux
 export CGO_ENABLED=1
 export GOFLAGS="-buildvcs=false -trimpath"
+export CMAKE_BUILD_PARALLEL_LEVEL=%{?_smp_build_ncpus}
+export PARALLEL=%{?_smp_build_ncpus}
 
 SRCDIR=%{_builddir}/ollama-%{version}
-BUILDDIR=%{_builddir}/ollama-%{version}-build
+# Diretório de staging onde "cmake --install --component" vai depositar /usr/*
+STAGING=%{_builddir}/staging-%{version}-%{_arch}
+# Binário Go fora do SRCDIR
+GOBINDIR=%{_builddir}/go-ollama-%{version}-%{_arch}
 
-# ======= UM ÚNICO CONFIGURE/BUILD HABILITANDO BACKENDS =======
-# Ajuste as opções conforme o CMakeLists do commit atual do upstream.
-# GGML_BACKEND_DL=ON para backends dinâmicos (.so) e os toggles de cada backend.
-cmake -S "$SRCDIR" -B "$BUILDDIR" \
-  -DBUILD_SHARED_LIBS=ON \
-  -DGGML_BACKEND_DL=ON \
+rm -rf "$STAGING" "$GOBINDIR"
+mkdir -p "$STAGING" "$GOBINDIR"
+
+pushd "$SRCDIR"
+# ====== CPU (sempre) ======
+rm -rf build
+cmake --preset "CPU"
+cmake --build --parallel ${PARALLEL} --preset "CPU"
+DESTDIR="$STAGING" cmake --install build --component CPU --strip --parallel ${PARALLEL}
+
+# ====== Vulkan (opcional) ======
 %if %{with vulkan}
-  -DGGML_VULKAN=ON \
-%else
-  -DGGML_VULKAN=OFF \
+rm -rf build
+cmake --preset "Vulkan" -DOLLAMA_RUNNER_DIR="vulkan"
+cmake --build --parallel ${PARALLEL} --preset "Vulkan"
+DESTDIR="$STAGING" cmake --install build --component Vulkan --strip --parallel ${PARALLEL}
 %endif
+
+# ====== ROCm 6 (opcional / HIP) ======
 %if %{with rocm}
-  -DGGML_HIP=ON \
-%else
-  -DGGML_HIP=OFF \
+rm -rf build
+cmake --preset "ROCm 6" -DOLLAMA_RUNNER_DIR="rocm"
+cmake --build --parallel ${PARALLEL} --preset "ROCm 6"
+DESTDIR="$STAGING" cmake --install build --component HIP --strip --parallel ${PARALLEL}
+# Limpeza de blobs gfx90[06], equivalente ao Dockerfile
+rm -f "$STAGING"/usr/lib/ollama/rocm/rocblas/library/*gfx90[06]*
 %endif
-  -DCMAKE_BUILD_TYPE=Release
+popd
 
-cmake --build "$BUILDDIR" -j%{?_smp_build_ncpus}
-
-# Binário Go (uma vez só)
-mkdir -p %{_builddir}/ollama-%{version}
+# ====== Binário Go (igual ao Docker, fora do SRCDIR) ======
 ( cd "$SRCDIR" && \
   if [ -f main.go ]; then \
-    go build -ldflags "-s -w" -o %{_builddir}/ollama-%{version}/ollama . ; \
+    go build -trimpath -buildmode=pie -ldflags "-s -w" -o "$GOBINDIR/ollama" . ; \
   else \
-    go build -ldflags "-s -w" -o %{_builddir}/ollama-%{version}/ollama ./cmd/ollama ; \
+    go build -trimpath -buildmode=pie -ldflags "-s -w" -o "$GOBINDIR/ollama" ./cmd/ollama ; \
   fi )
 
 %install
 rm -rf %{buildroot}
 
-# Binário
-install -Dpm0755 %{_builddir}/ollama-%{version}/ollama %{buildroot}%{_bindir}/ollama
+# Instala binário
+install -Dpm0755 %{_builddir}/go-ollama-%{version}-%{_arch}/ollama %{buildroot}%{_bindir}/ollama
 
-# Runners -> /usr/lib/ollama (apenas GPU; não copiamos libs CPU)
-install -d %{buildroot}%{ollama_libdir}
+# Copia todo conteúdo instalado via DESTDIR="$STAGING" (prefix=/usr)
+# Isso inclui os componentes CPU e, se habilitados, Vulkan e HIP (ROCm).
+if [ -d "%{_builddir}/staging-%{version}-%{_arch}/usr" ]; then
+  cp -a %{_builddir}/staging-%{version}-%{_arch}/usr/* %{buildroot}/usr/
+fi
 
-# Coleta de UM ÚNICO builddir (dist preferencial; fallback lib/)
-for src in \
-  "%{_builddir}/ollama-%{version}-build/dist/linux-$GOARCH/lib/ollama" \
-  "%{_builddir}/ollama-%{version}-build/lib/ollama" \
-; do
-  [ -d "$src" ] || continue
-%if %{with vulkan}
-  cp -a "$src"/*vulkan*.so %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
-  cp -a "$src"/*vk*.so     %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
-%endif
-%if %{with rocm}
-  cp -a "$src"/*rocm*.so   %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
-  cp -a "$src"/*hip*.so    %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
-  cp -a "$src"/rocblas*/library/* %{buildroot}%{ollama_libdir}/ 2>/dev/null || true
-%endif
-done
-
-# Limpa RPATH/RUNPATH (conformidade QA Fedora)
+# QA Fedora: limpa RPATH/RUNPATH nas .so colocadas em /usr/lib/ollama
 if ls %{buildroot}%{ollama_libdir}/*.so >/dev/null 2>&1; then
   for so in %{buildroot}%{ollama_libdir}/*.so; do
     chrpath -d "$so" 2>/dev/null || true
@@ -156,7 +167,7 @@ if ls %{buildroot}%{ollama_libdir}/*.so >/dev/null 2>&1; then
   done
 fi
 
-# systemd/sysusers/config a partir do Source1 (ollamad-main)
+# systemd / sysusers / configuração
 install -Dpm0644 ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
 install -Dpm0644 ollamad-main/ollamad.sysusers %{buildroot}%{_sysusersdir}/ollamad.conf
 install -d %{buildroot}%{_sysconfdir}/ollamad
@@ -183,7 +194,7 @@ exit 0
 %ldconfig
 %systemd_postun_with_restart ollamad.service
 
-# ---------- FILES ----------
+# ---------- ARQUIVOS ----------
 %files
 %license LICENSE*
 %doc README.md
@@ -204,11 +215,12 @@ exit 0
 %files -n ollama-rocm
 %{ollama_libdir}/*rocm*.so
 %{ollama_libdir}/*hip*.so
-%{ollama_libdir}/rocblas*/library/*
+%{ollama_libdir}/rocm/rocblas/library/*
 %endif
 
 %changelog
-* Fri Oct 31 2025 Moacyr <you@example.org> - 0.12.7-5
-- Remove loop de presets; um único configure/build habilitando Vulkan/ROCm
-- Coleta das libs a partir de um único builddir
-- Mantém limpeza de RPATH/RUNPATH e destino em /usr/lib/ollama
+* Sun Nov 02 2025 Moacyr Prado <you@example.org> - 0.12.7-7
+- Alinha ao Dockerfile oficial: presets CPU/Vulkan/ROCm6 com install por component (CPU/Vulkan/HIP)
+- Usa staging DESTDIR e copia para buildroot no %install
+- Compila Go com -buildmode=pie; mantém systemd/sysusers/conf/ldconfig
+- Subpacotes -vulkan e -rocm ligados via bconds
