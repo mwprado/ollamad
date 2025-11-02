@@ -26,6 +26,7 @@ BuildRequires:  patchelf
 BuildRequires:  chrpath
 BuildRequires:  unzip
 BuildRequires:  systemd-rpm-macros
+BuildRequires:  ccache
 
 # Vulkan (ativo por padrão)
 %if %{without vulkan}
@@ -110,7 +111,7 @@ rm -f "$STAGING"/usr/lib/ollama/rocm/rocblas/library/*gfx90[06]*
 %endif
 popd
 
-( cd "$SRCDIR" && go build -trimpath -buildmode=pie -ldflags "-s -w" -o "$GOBINDIR/ollama" ./ollama )
+( cd "$SRCDIR" && go build -trimpath -buildmode=pie -ldflags "-s -w" -o "$GOBINDIR/ollama")
 
 %install
 rm -rf %{buildroot}
