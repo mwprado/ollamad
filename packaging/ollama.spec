@@ -1,6 +1,6 @@
 Name:           ollama
 Version:        0.12.8
-Release:        11%{?dist}
+Release:        12%{?dist}
 Summary:        Create, run and share large language models (LLMs)
 License:        MIT
 URL:            https://github.com/ollama/ollama
