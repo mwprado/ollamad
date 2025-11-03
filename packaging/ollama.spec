@@ -1,6 +1,6 @@
 Name:           ollama
 Version:        0.12.8
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        Create, run and share large language models (LLMs)
 License:        MIT
 URL:            https://github.com/ollama/ollama
@@ -8,6 +8,10 @@ URL:            https://github.com/ollama/ollama
 %{!?_unitdir:%global _unitdir /usr/lib/systemd/system}
 %{!?_sysusersdir:%global _sysusersdir /usr/lib/sysusers.d}
 %global ollama_libdir /usr/lib/ollama
+
+# Desativa geração de -debuginfo/-debugsource (adequado para binários Go nesta receita)
+%global debug_package %{nil}
+%undefine _debugsource_packages
 
 # Vulkan e ROCm habilitados por padrão
 %bcond_with vulkan
@@ -154,7 +158,7 @@ exit 0
 
 %files
 %license LICENSE*
-%doc README.md
+# %  doc README.md
 %doc docs/*
 %{_bindir}/ollama
 %{_unitdir}/ollamad.service
