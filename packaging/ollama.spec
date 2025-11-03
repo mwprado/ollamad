@@ -113,7 +113,7 @@ rm -f "$STAGING"/usr/lib/ollama/rocm/rocblas/library/*gfx90[06]*
 %endif
 popd
 
-( cd "$SRCDIR" && go build -trimpath -buildmode=pie -ldflags "-s -w" -o "$GOBINDIR/ollama .")
+( cd "$SRCDIR" && go build -trimpath -buildmode=pie -ldflags "-s -w" -o "$GOBINDIR/ollama" .)
 
 %install
 rm -rf %{buildroot}
