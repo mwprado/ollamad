@@ -1,6 +1,6 @@
 Name:           ollama
 Version:        0.12.8
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        Create, run and share large language models (LLMs)
 License:        MIT
 URL:            https://github.com/ollama/ollama
@@ -72,6 +72,23 @@ ExclusiveArch:  x86_64 aarch64
 Empacotamento do Ollama seguindo o Dockerfile oficial.
 Compila sempre CPU + Vulkan + ROCm (a menos que explicitamente desativado).
 Inclui systemd, sysusers, conf e ldconfig.
+
+%if %{with vulkan}
+%package -n ollama-vulkan
+Summary: Vulkan runners for Ollama
+Requires: ollama
+%description -n ollama-vulkan
+Vulkan execution backends for Ollama.
+%endif
+
+%if %{with rocm}
+%package -n ollama-rocm
+Summary: ROCm/HIP runners for Ollama
+Requires: ollama
+ExclusiveArch: x86_64
+%description -n ollama-rocm
+ROCm/HIP execution backends for Ollama.
+%endif
 
 %prep
 %setup -q -n ollama-%{version} -a 1
