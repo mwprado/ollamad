@@ -36,11 +36,14 @@ BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  glslc
 BuildRequires:  glslang
 BuildRequires:  VulkanMemoryAllocator-devel
+BuildRequires:  vulkan-utility-libraries-devel
 BuildRequires:  vulkan-headers
 BuildRequires:  vulkan-loader-devel
 BuildRequires:  vulkan-tools
 BuildRequires:  spirv-tools
+BuildRequires:  vulkan-validation-layers
 BuildRequires:  shaderc
+
 %global pck_build_vulkan 1
 %endif
 
