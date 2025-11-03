@@ -37,6 +37,7 @@ BuildRequires:  ccache
 # Vulkan desativado
 %else
 BuildRequires:  pkgconfig(vulkan)
+BuildRequires:  glslc
 
 %global pck_build_vulkan 1
 %endif
