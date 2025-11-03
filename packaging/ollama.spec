@@ -110,10 +110,12 @@ DESTDIR="$STAGING" cmake --install build --component CPU --strip --parallel ${PA
 %if %{without vulkan}
 # Vulkan desativado
 %else
-rm -rf build
-cmake --preset "Vulkan" -DOLLAMA_RUNNER_DIR="vulkan"
-cmake --build --parallel ${PARALLEL} --preset "Vulkan"
-DESTDIR="$STAGING" cmake --install build --component Vulkan --strip --parallel ${PARALLEL}
+rm -rf build-vk
+cmake -S . -B build-vk -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DOLLAMA_RUNNER_DIR=vulkan
+cmake --build build-vk --parallel ${PARALLEL}
+# debug: listar o que saiu
+echo "=== VK BUILD TREE ==="
+find build-vk -maxdepth 3 -type f -name 'libggml-*.so*' -printf '%p\n' || true
 %endif
 
 %if %{without rocm}
@@ -140,6 +142,15 @@ if ls %{buildroot}%{ollama_libdir}/*.so >/dev/null 2>&1; then
     patchelf --remove-rpath "$so" 2>/dev/null || true
   done
 fi
+
+%if %{with vulkan}
+# COPIA Vulkan (.so) pro destino do pacote
+if ls build-vk/**/libggml-*.so* >/dev/null 2>&1; then
+  find build-vk -type f -name 'libggml-*.so*' -exec install -Dm0755 '{}' '%{buildroot}%{ollama_libdir}/' ';'
+else
+  echo "AVISO: nenhum libggml-*.so* encontrado em build-vk" >&2
+fi
+%endif
 
 install -Dpm0644 ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
 install -Dpm0644 ollamad-main/ollamad.sysusers %{buildroot}%{_sysusersdir}/ollamad.conf
@@ -176,6 +187,7 @@ exit 0
 # sem Vulkan
 %else
 %files -n ollama-vulkan
+%{ollama_libdir}/libggml-vulkan*.so*
 %{ollama_libdir}/*vulkan*.so
 %{ollama_libdir}/*vk*.so
 %endif
