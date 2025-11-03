@@ -1,6 +1,6 @@
 Name:           ollama
 Version:        0.12.8
-Release:        10%{?dist}
+Release:        11%{?dist}
 Summary:        Create, run and share large language models (LLMs)
 License:        MIT
 URL:            https://github.com/ollama/ollama
@@ -37,16 +37,6 @@ BuildRequires:  ccache
 # Vulkan desativado
 %else
 BuildRequires:  pkgconfig(vulkan)
-BuildRequires:  glslc
-BuildRequires:  glslang
-BuildRequires:  VulkanMemoryAllocator-devel
-BuildRequires:  vulkan-utility-libraries-devel
-BuildRequires:  vulkan-headers
-BuildRequires:  vulkan-loader-devel
-BuildRequires:  vulkan-tools
-BuildRequires:  spirv-tools
-BuildRequires:  vulkan-validation-layers
-BuildRequires:  shaderc
 
 %global pck_build_vulkan 1
 %endif
@@ -61,7 +51,6 @@ BuildRequires:  rocblas-devel
 BuildRequires:  rocm-device-libs
 %global pck_build_rocm 1
 %endif
-
 Requires(post):   systemd
 Requires(preun):  systemd
 Requires(postun): systemd
@@ -175,7 +164,6 @@ exit 0
 
 %files
 %license LICENSE*
-# %  doc README.md
 %doc docs/*
 %{_bindir}/ollama
 %{_unitdir}/ollamad.service
