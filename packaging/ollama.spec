@@ -152,12 +152,19 @@ else
 fi
 %endif
 
+
+# debug: liste o que foi instalado nas libs
+echo "=== INSTALLED LIBS ==="
+ls -l %{buildroot}%{ollama_libdir} || true
+
 install -Dpm0644 ollamad-main/ollamad.service %{buildroot}%{_unitdir}/ollamad.service
 install -Dpm0644 ollamad-main/ollamad.sysusers %{buildroot}%{_sysusersdir}/ollamad.conf
 install -d %{buildroot}%{_sysconfdir}/ollamad
 install -Dpm0644 ollamad-main/ollamad.conf %{buildroot}%{_sysconfdir}/ollamad/ollamad.conf
 install -d %{buildroot}%{_sysconfdir}/ld.so.conf.d
 echo "%{ollama_libdir}" > %{buildroot}%{_sysconfdir}/ld.so.conf.d/ollamad-ld.conf
+
+
 
 %pre
 %sysusers_create_compat %{_sysusersdir}/ollamad.conf
