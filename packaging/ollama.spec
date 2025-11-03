@@ -1,6 +1,6 @@
 Name:           ollama
 Version:        0.12.8
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        Create, run and share large language models (LLMs)
 License:        MIT
 URL:            https://github.com/ollama/ollama
@@ -15,7 +15,7 @@ URL:            https://github.com/ollama/ollama
 
 # Vulkan e ROCm habilitados por padrão
 %bcond_without vulkan
-%bcond_without rocm
+%bcond_with rocm
 
 Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.zip
 Source1:        https://github.com/mwprado/ollamad/archive/refs/heads/main.zip
@@ -38,7 +38,7 @@ BuildRequires:  ccache
 %else
 BuildRequires:  pkgconfig(vulkan)
 BuildRequires:  glslc
-
+BuildRequires:  glslang
 %global pck_build_vulkan 1
 %endif
 
