@@ -14,7 +14,7 @@ URL:            https://github.com/ollama/ollama
 %undefine _debugsource_packages
 
 # Vulkan e ROCm habilitados por padrão
-%bcond_without vulkan
+%bcond_with vulkan
 %bcond_with rocm
 
 Source0:        https://github.com/ollama/ollama/archive/refs/tags/v%{version}.zip
